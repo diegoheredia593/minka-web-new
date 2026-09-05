@@ -1238,6 +1238,17 @@ section[id] {
 
 .live-demo-screen {
   position: absolute;
+  overflow: hidden;
+  border-radius: 14% / 7%;
+}
+
+.live-demo-screen-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .live-demo-device__frame--iphone .live-demo-screen {
@@ -1285,6 +1296,26 @@ section[id] {
   border: 1.5px solid var(--pine);
   color: var(--pine-dark);
   background: rgba(36, 91, 79, 0.1);
+}
+
+/* Over a real screenshot, the hit target sits on top of the app's own nav
+   icon, which already shows its own selected/unselected state — so no
+   visible box, just a soft highlight for hover/keyboard focus. */
+.live-demo-zone--nav {
+  padding: 0;
+  border: none;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.live-demo-zone--nav:hover,
+.live-demo-zone--nav:focus-visible {
+  background: rgba(36, 91, 79, 0.12);
+}
+
+.live-demo-zone--nav[data-active="true"] {
+  border: none;
+  background: transparent;
 }
 
 .demo-section {
