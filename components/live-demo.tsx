@@ -18,6 +18,10 @@ type DemoLayer = {
   // the zone's on-screen position so a future pass can draw a callout line
   // from the zone to its side without having to rework this data.
   side: Side;
+  // Real screenshot for this screen. Only set where we actually have a
+  // capture (currently: admin, mobile). Everything else still falls back
+  // to the placeholder rectangle rendering below.
+  image?: string;
 };
 
 type Rect = { top: string; left: string; width: string; height: string };
@@ -56,26 +60,33 @@ const adminLayers: DemoLayer[] = [
   {
     id: "resumen",
     label: "Resumen",
-    description: "Un centro de atención y acción — no una colección de estadísticas decorativas.",
+    description:
+      "Alertas de cobranza y reservas, tu recaudación del mes y el estado de tu comunidad — todo en una sola pantalla al abrir la app.",
     side: "left",
+    image: "/live-demo/admin-mobile-resumen.png",
   },
   {
     id: "cobranzas",
-    label: "Cobranzas",
-    description: "Aprueba o rechaza comprobantes y sigue tu tasa de cobranza en tiempo real.",
+    label: "Cobranza",
+    description:
+      "Genera alícuotas, filtra por estado de pago y da seguimiento a cada villa sin salir de la pantalla.",
     side: "right",
+    image: "/live-demo/admin-mobile-cobranzas.png",
   },
   {
-    id: "accesos",
-    label: "Accesos",
-    description: "Revisa solicitudes de acceso y decide quién entra a tu comunidad.",
+    id: "residentes",
+    label: "Residentes",
+    description:
+      "Directorio completo de residentes con su estado de cuenta, más las solicitudes de acceso pendientes de aprobar.",
     side: "left",
+    image: "/live-demo/admin-mobile-residentes.png",
   },
   {
     id: "comunicados-admin",
-    label: "Comunicados",
-    description: "Publica anuncios oficiales para toda la comunidad en un clic.",
+    label: "Comunidad",
+    description: "Publica anuncios y eventos, y consulta el mapa de tu urbanización — todo desde un mismo lugar.",
     side: "right",
+    image: "/live-demo/admin-mobile-comunidad.png",
   },
 ];
 
@@ -95,6 +106,17 @@ const macbookRects: Rect[] = [
   { top: "28%", left: "4%", width: "28%", height: "64%" },
   { top: "28%", left: "36%", width: "28%", height: "64%" },
   { top: "28%", left: "68%", width: "28%", height: "64%" },
+];
+
+// Hit targets for the real admin/mobile screenshots, positioned over the
+// app's own bottom nav icons (Panel, Reservas, Residentes, Comunidad,
+// Cobranza, Configuración — 6 evenly spaced icons; we only wire the 4 we
+// have layers/captures for). Indices line up with `adminLayers` above.
+const adminMobileNavRects: Rect[] = [
+  { top: "91%", left: "3%", width: "15%", height: "8%" }, // resumen -> Panel
+  { top: "91%", left: "72%", width: "16%", height: "8%" }, // cobranzas -> Cobranza
+  { top: "91%", left: "38%", width: "15%", height: "8%" }, // residentes -> Residentes
+  { top: "91%", left: "55%", width: "15%", height: "8%" }, // comunicados-admin -> Comunidad
 ];
 
 // Below this width there's no device toggle — mobile visitors only ever see
@@ -144,6 +166,11 @@ export function LiveDemo() {
   const leftLayer = layers.find((layer) => layer.id === leftLayerId) ?? findFirstOfSide(layers, "left");
   const rightLayer = layers.find((layer) => layer.id === rightLayerId) ?? findFirstOfSide(layers, "right");
   const rects = device === "iphone" ? phoneRects : macbookRects;
+
+  // Real captures only exist for admin on mobile so far. Everywhere else
+  // (residente, or admin on the MacBook frame) still uses the placeholder
+  // rectangles until those screenshots exist.
+  const showRealScreenshots = profile === "admin" && device === "iphone";
 
   const controls = (
     <div className="live-demo-controls" role="group" aria-label="Configurar vista previa">
@@ -208,22 +235,47 @@ export function LiveDemo() {
                 <MacbookPro className="live-demo-device__svg" />
               )}
               <div className="live-demo-screen">
-                {layers.map((layer, index) => {
-                  const isActive = layer.id === activeLayerId;
-                  return (
-                    <button
-                      key={layer.id}
-                      type="button"
-                      className="live-demo-zone"
-                      data-active={isActive}
-                      style={rects[index]}
-                      aria-pressed={isActive}
-                      onClick={() => handleZoneClick(layer)}
-                    >
-                      {layer.label}
-                    </button>
-                  );
-                })}
+                {showRealScreenshots ? (
+                  <>
+                    <img
+                      src={activeLayer.image}
+                      alt={activeLayer.label}
+                      className="live-demo-screen-image"
+                    />
+                    {layers.map((layer, index) => {
+                      const isActive = layer.id === activeLayerId;
+                      return (
+                        <button
+                          key={layer.id}
+                          type="button"
+                          className="live-demo-zone live-demo-zone--nav"
+                          data-active={isActive}
+                          style={adminMobileNavRects[index]}
+                          aria-label={layer.label}
+                          aria-pressed={isActive}
+                          onClick={() => handleZoneClick(layer)}
+                        />
+                      );
+                    })}
+                  </>
+                ) : (
+                  layers.map((layer, index) => {
+                    const isActive = layer.id === activeLayerId;
+                    return (
+                      <button
+                        key={layer.id}
+                        type="button"
+                        className="live-demo-zone"
+                        data-active={isActive}
+                        style={rects[index]}
+                        aria-pressed={isActive}
+                        onClick={() => handleZoneClick(layer)}
+                      >
+                        {layer.label}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
