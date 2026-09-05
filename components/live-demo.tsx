@@ -276,6 +276,8 @@ export function LiveDemo() {
                     );
                   })
                 )}
+
+                {device === "iphone" && <div className="live-demo-notch" aria-hidden="true" />}
               </div>
             </div>
           </div>
