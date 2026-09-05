@@ -96,12 +96,12 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
                 aria-label={isActive ? `${item.alt}, vista actual` : `Mostrar ${item.alt}`}
                 aria-current={isActive ? "true" : undefined}
               >
-                <span className="phone-carousel-float block h-full w-full rounded-[2.15rem]">
+                <span className="phone-carousel-float block h-full w-full rounded-[2.15rem] p-1">
                   <span className="absolute left-1/2 top-2 z-10 h-5 w-20 -translate-x-1/2 rounded-full bg-[#17231f] sm:h-6 sm:w-24" />
                   <img
                     src={item.src}
                     alt={item.alt}
-                    className="h-full w-full rounded-[2.15rem] object-cover"
+                    className="h-full w-full rounded-[1.9rem] object-cover object-top"
                     draggable={false}
                   />
                 </span>
