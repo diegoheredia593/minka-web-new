@@ -5,36 +5,34 @@ import {
 
 const exampleImages: ImageItem[] = [
   {
-    src: "https://res.cloudinary.com/harshitproject/image/upload/v1746774805/Behance-screen.png",
-    alt: "Vista temporal uno de la aplicación",
+    src: "/live-demo/admin-mobile-resumen.png",
+    alt: "Panel principal de administración en Minka",
     eyebrow: "Vista principal",
     title: "Todo lo importante, en un solo lugar.",
     description:
-      "Texto provisional para explicar esta pantalla y el valor que aporta dentro de la experiencia Minka.",
+      "Alertas de cobranza y reservas, tu recaudación del mes y el estado de tu comunidad — todo en una sola pantalla al abrir la app.",
   },
   {
-    src: "https://res.cloudinary.com/harshitproject/image/upload/v1746774805/Notion-screen.png",
-    alt: "Vista temporal dos de la aplicación",
-    eyebrow: "Administración",
+    src: "/live-demo/admin-mobile-cobranzas.png",
+    alt: "Pantalla de cobranza en Minka",
+    eyebrow: "Cobranza",
     title: "Decisiones claras para cada día.",
-    description:
-      "Este contenido cambiará junto con la captura activa. Más adelante definiremos el copy definitivo.",
+    description: "Genera alícuotas, filtra por estado de pago y da seguimiento a cada villa sin salir de la pantalla.",
   },
   {
-    src: "https://res.cloudinary.com/harshitproject/image/upload/v1746774806/One-screen.png",
-    alt: "Vista temporal tres de la aplicación",
+    src: "/live-demo/admin-mobile-residentes.png",
+    alt: "Directorio de residentes en Minka",
+    eyebrow: "Residentes",
+    title: "Una experiencia simple para tu comunidad.",
+    description:
+      "Directorio completo de residentes con su estado de cuenta, más las solicitudes de acceso pendientes de aprobar.",
+  },
+  {
+    src: "/live-demo/admin-mobile-comunidad.png",
+    alt: "Anuncios y eventos de la comunidad en Minka",
     eyebrow: "Comunidad",
-    title: "Una experiencia simple para residentes.",
-    description:
-      "Aquí podremos describir una función concreta de la aplicación usando las capturas reales de Minka.",
-  },
-  {
-    src: "https://res.cloudinary.com/harshitproject/image/upload/v1746774807/Reddit-nj7hwh.png",
-    alt: "Vista temporal cuatro de la aplicación",
-    eyebrow: "Operación",
     title: "Menos seguimiento manual.",
-    description:
-      "Texto temporal para la cuarta pantalla. El carrusel admite más vistas sin cambiar su funcionamiento.",
+    description: "Publica anuncios y eventos, y consulta el mapa de tu urbanización — todo desde un mismo lugar.",
   },
 ];
 
