@@ -20,12 +20,16 @@ import {
   Plus,
   Search,
   Settings,
+  Signal,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   UserPlus,
   UsersRound,
   WalletCards,
+  Wifi,
+  BatteryFull,
+  LocateFixed,
   X,
 } from "lucide-react";
 
@@ -104,7 +108,7 @@ function DemoButton({ children, onClick, tone = "clay", className = "" }: { chil
 }
 
 function StatusBar() {
-  return <div className="amd-status"><span>4:05</span><span>● ◔ ▰</span></div>;
+  return <div className="amd-status"><span>4:05</span><span className="amd-status-icons"><Signal /><Wifi /><BatteryFull /></span></div>;
 }
 
 function PageTitle({ title, eyebrow, subtitle, back }: { title: string; eyebrow?: string; subtitle?: string; back?: () => void }) {
@@ -178,7 +182,7 @@ function Solicitudes({ back, fallback }: { back: () => void; fallback: () => voi
 
 function Comunidad({ navigate, fallback }: { navigate: (view: View) => void; fallback: () => void }) {
   const announcements = [["Mantenimiento de piscina", "Este domingo la piscina permanecerá cerrada de 08:00 a 14:00 por mantenimiento."], ["Corte de agua", "El jueves habrá un corte programado de agua potable entre las 09:00 y las 12:00."], ["Reunión de residentes", "Convocatoria a la reunión trimestral el próximo viernes a las 19:00 en el salón social."]];
-  return <div className="amd-page"><PageTitle title="Comunidad" /><span className="amd-badge">3 activos</span><DemoButton tone="soft" onClick={() => navigate("mapa")}>Mapa 🗺</DemoButton>
+  return <div className="amd-page"><PageTitle title="Comunidad" /><div className="amd-community-actions"><span className="amd-badge">3 activos</span><DemoButton tone="soft" onClick={() => navigate("mapa")}>Mapa 🗺</DemoButton></div>
     <div className="amd-section-row"><h4>Anuncios</h4><DemoButton tone="soft" onClick={() => navigate("nuevo-anuncio")}><Plus /> Nuevo anuncio</DemoButton></div>
     <div className="amd-stack-sm">{announcements.map(a => <article className="amd-announcement" key={a[0]}><Megaphone /><span><strong>{a[0]}</strong><small>{a[1]}</small></span><button type="button" onClick={fallback}><Menu /></button></article>)}</div>
     <div className="amd-section-row"><h4>Eventos</h4><DemoButton tone="soft" onClick={() => navigate("nuevo-evento")}><Plus /> Nuevo evento</DemoButton></div>
@@ -206,7 +210,10 @@ function Composer({ kind, back, fallback }: { kind: "anuncio" | "evento"; back: 
   </div>;
 }
 
-function CommunityMap({ back }: { back: () => void }) { return <div className="amd-page"><PageTitle eyebrow="Comunidad" title="Mapa" subtitle="Vista general de la organización. Urbanización Los Jardines." back={back} /><div className="amd-map"><img src="/admin-mobile-reference/comunidad-mapa.png" alt="Mapa de Urbanización Los Jardines" /></div><h4>Leyenda</h4><article className="amd-legend"><span>⚽ Cancha de fútbol</span><span>🏋️ Gimnasio</span><span>🏊 Piscina</span><span>🚪 Garita / acceso principal</span></article></div>; }
+function CommunityMap({ back }: { back: () => void }) {
+  const [zoom, setZoom] = useState(1);
+  return <div className="amd-page"><PageTitle eyebrow="Comunidad" title="Mapa" subtitle="Vista general de la organización. Urbanización Los Jardines." back={back} /><div className="amd-map"><img style={{ transform: `scale(${zoom})` }} src="/admin-mobile-reference/comunidad-mapa-detalle.png" alt="Mapa de Urbanización Los Jardines" /><div className="amd-map-controls"><button type="button" aria-label="Acercar mapa" onClick={() => setZoom(value => Math.min(1.8, value + .2))}>+</button><button type="button" aria-label="Alejar mapa" onClick={() => setZoom(value => Math.max(1, value - .2))}>−</button></div><button type="button" className="amd-map-recenter" onClick={() => setZoom(1)}><LocateFixed /> Recentrar</button></div><h4>Leyenda</h4><article className="amd-legend"><span>⚽ Cancha de fútbol</span><span>🏋️ Gimnasio</span><span>🏊 Piscina</span><span>🚪 Garita / acceso principal</span></article></div>;
+}
 
 function Cobranza({ openModal, fallback }: { openModal: (modal: "alicuota" | "extraordinaria") => void; fallback: () => void }) {
   const villas = ["Manzana 1 · Villa 1", "Manzana 1 · Villa 2", "Manzana 1 · Villa 3", "Manzana 2 · Villa 1", "Manzana 2 · Villa 2", "Manzana 4 · Villa 23", "Manzana 5 · Villa 4", "Manzana 6 · Villa 12"];
