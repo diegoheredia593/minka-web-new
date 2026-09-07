@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Building2,
-  CalendarCheck2,
-  CheckCircle2,
-  CircleDollarSign,
   KeyRound,
-  Megaphone,
   ShieldCheck,
   SlidersHorizontal,
   UsersRound,
@@ -15,10 +11,8 @@ import {
 
 import { FlowButton } from "@/components/ui/flow-button";
 import { Input } from "@/components/ui/input";
-import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { Label } from "@/components/ui/label";
 import { LiveDemo } from "@/components/live-demo";
-import { MacbookPro } from "@/components/ui/macbook-pro";
 import { SectionIntro } from "@/components/section-intro";
 import { SiteHeader } from "@/components/site-header";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,22 +24,6 @@ const problemItems = [
   "Comprobantes por chat",
   "Reservas manuales",
   "Solicitudes dispersas",
-];
-
-const adminFocus = [
-  { icon: CheckCircle2, label: "Pagos por revisar" },
-  { icon: KeyRound, label: "Solicitudes de acceso" },
-  { icon: CalendarCheck2, label: "Reservas próximas" },
-  { icon: CircleDollarSign, label: "Unidades con valores pendientes" },
-  { icon: Megaphone, label: "Comunicados y eventos" },
-];
-
-const residentActions = [
-  "Consultar valores pendientes",
-  "Enviar comprobantes",
-  "Reservar espacios",
-  "Ver anuncios y eventos",
-  "Recibir notificaciones relevantes",
 ];
 
 const controlItems = [
@@ -71,27 +49,6 @@ const controlItems = [
   },
 ];
 
-const communityVariants = [
-  {
-    name: "Bosques del Sol",
-    initials: "BS",
-    color: "#245b4f",
-    detail: "Logo y colores propios en cada aviso, recibo y pantalla de acceso.",
-  },
-  {
-    name: "Vista Río",
-    initials: "VR",
-    color: "#4b8194",
-    detail: "Misma app, misma velocidad — solo cambia la identidad visual.",
-  },
-  {
-    name: "Los Ceibos Park",
-    initials: "LC",
-    color: "#c66f4a",
-    detail: "Nombre, marca y comunicados adaptados sin perder funcionalidad.",
-  },
-];
-
 const onboardingSteps = [
   {
     title: "Configurar comunidad",
@@ -114,69 +71,6 @@ const onboardingSteps = [
     detail: "Tu comunidad opera en Minka, con acompañamiento durante las primeras semanas.",
   },
 ];
-
-function VisualPlaceholder({
-  label,
-  title,
-  detail,
-  format,
-  shape = "desktop",
-}: {
-  label: string;
-  title: string;
-  detail: string;
-  format: string;
-  shape?: "desktop" | "mobile" | "wide";
-}) {
-  // Desktop captures are framed in a MacBook until real screenshots land;
-  // no fabricated app content goes inside, just the copy that was already there.
-  if (shape === "desktop") {
-    return (
-      <div className="visual-placeholder visual-placeholder--desktop" data-reveal>
-        <div className="visual-placeholder__meta">{label}</div>
-        <div className="visual-placeholder__device">
-          <MacbookPro className="visual-placeholder__device-frame" />
-          <div className="visual-placeholder__device-screen">
-            <p>{title}</p>
-            <span>{detail}</span>
-          </div>
-        </div>
-        <div className="visual-placeholder__format">{format}</div>
-      </div>
-    );
-  }
-
-  // Mobile captures are framed in an iPhone until real screenshots land;
-  // same rule as desktop, no fabricated app content inside.
-  if (shape === "mobile") {
-    return (
-      <div className="visual-placeholder visual-placeholder--mobile" data-reveal>
-        <div className="visual-placeholder__meta">{label}</div>
-        <div className="visual-placeholder__device visual-placeholder__device--phone">
-          <Iphone16Pro className="visual-placeholder__device-frame" />
-          <div className="visual-placeholder__device-screen">
-            <p>{title}</p>
-            <span>{detail}</span>
-          </div>
-        </div>
-        <div className="visual-placeholder__format">{format}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`visual-placeholder visual-placeholder--${shape}`} data-reveal>
-      <div className="visual-placeholder__meta">{label}</div>
-      <div className="visual-placeholder__frame">
-        <div>
-          <p>{title}</p>
-          <span>{detail}</span>
-        </div>
-      </div>
-      <div className="visual-placeholder__format">{format}</div>
-    </div>
-  );
-}
 
 export function MinkaLanding() {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -403,119 +297,6 @@ export function MinkaLanding() {
           </div>
         </section>
 
-        <section id="administracion" className="admin-section" aria-labelledby="admin-title">
-          <div className="section-shell two-column">
-            <div>
-              <SectionIntro
-                id="admin-title"
-                eyebrow="Para administradores"
-                title="Menos seguimiento manual. Más claridad sobre lo que requiere atención."
-                text="El dashboard de Minka debe sentirse como un centro de atención y acción, no como una colección de estadísticas decorativas."
-              />
-              <div className="attention-list" data-reveal>
-                {adminFocus.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={item.label}>
-                      <Icon aria-hidden="true" />
-                      <span>{item.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <VisualPlaceholder
-              label="Visual principal de administración"
-              title="Espacio para captura o motion del dashboard Admin"
-              detail="Debe mostrar una sección prominente: Requiere tu atención."
-              format="Desktop 16:10"
-            />
-          </div>
-        </section>
-
-        <section id="residentes" className="resident-section" aria-labelledby="residentes-title">
-          <div className="section-shell resident-layout">
-            <VisualPlaceholder
-              label="Visual de residente"
-              title="Espacio para home móvil del residente"
-              detail="Aquí irán capturas de estado financiero, reservas y comunidad."
-              format="Mobile 9:19"
-              shape="mobile"
-            />
-            <div>
-              <SectionIntro
-                id="residentes-title"
-                eyebrow="Para residentes"
-                title="Una aplicación que tus residentes sí entienden."
-                text="Los residentes pueden encontrar lo importante sin buscar mensajes antiguos ni preguntar por cada proceso."
-              />
-              <ul className="resident-actions" data-reveal>
-                {residentActions.map((action) => (
-                  <li key={action}>
-                    <CheckCircle2 aria-hidden="true" />
-                    <span>{action}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section className="reservation-section" aria-labelledby="reservas-title">
-          <div className="section-shell section-stack">
-            <SectionIntro
-              id="reservas-title"
-              eyebrow="Reservas"
-              title="Reservar un espacio debería tomar segundos, no mensajes."
-              text="El residente elige espacio, fecha y horario disponible. La administración mantiene visibilidad sobre lo que está reservado."
-            />
-            <div className="feature-visual-row">
-              <VisualPlaceholder
-                label="Flujo de reserva"
-                title="Espacio para video corto de reserva"
-                detail="Secuencia sugerida: espacio, fecha, horario, confirmación."
-                format="Mobile motion 9:19"
-                shape="mobile"
-              />
-              <div className="flow-copy" data-reveal>
-                {["Espacio", "Fecha", "Horario disponible", "Confirmación"].map((item, index) => (
-                  <div key={item}>
-                    <span>{String(index + 1).padStart(2, "0")}</span>
-                    <p>{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="cobranzas" className="collections-section" aria-labelledby="cobranzas-title">
-          <div className="section-shell section-stack">
-            <SectionIntro
-              id="cobranzas-title"
-              eyebrow="Cobranzas"
-              title="Más claridad para cobrar. Más claridad para pagar."
-              text="La comunidad conserva su cuenta bancaria. El residente paga como siempre, envía su comprobante desde Minka y la administración lo aprueba o rechaza desde un solo lugar."
-            />
-            <div className="paired-placeholders">
-              <VisualPlaceholder
-                label="Admin"
-                title="Espacio para captura de comprobantes por revisar"
-                detail="Vista sugerida: pendiente, recaudado, tasa de cobranza y pagos por revisar."
-                format="Desktop 16:10"
-              />
-              <VisualPlaceholder
-                label="Residente"
-                title="Espacio para captura de pago aprobado"
-                detail="Vista sugerida: valores pendientes, cómo pagar y comprobantes enviados."
-                format="Mobile 9:19"
-                shape="mobile"
-              />
-            </div>
-          </div>
-        </section>
-
         <section className="control-section" aria-labelledby="control-title">
           <div className="section-shell">
             <SectionIntro
@@ -539,56 +320,7 @@ export function MinkaLanding() {
           </div>
         </section>
 
-        <section className="communication-section" aria-labelledby="com-title">
-          <div className="section-shell two-column">
-            <div>
-              <SectionIntro
-                id="com-title"
-                eyebrow="Comunicación"
-                title="La información importante deja de perderse."
-                text="Anuncios, eventos y notificaciones viven en un canal oficial, claro y útil. Sin convertir la comunidad en una red social."
-              />
-              <div className="quote-strip" data-reveal>
-                Notificar cuando importa. No notificar por notificar.
-              </div>
-            </div>
-            <VisualPlaceholder
-              label="Comunidad"
-              title="Espacio para captura de anuncios y notificaciones"
-              detail="Puede ser una captura fija o una microanimación de publicación oficial."
-              format="Mobile + desktop"
-            />
-          </div>
-        </section>
-
-        <section className="custom-section" aria-labelledby="custom-title">
-          <div className="section-shell section-stack">
-            <SectionIntro
-              id="custom-title"
-              eyebrow="Personalización"
-              title="Minka se adapta a tu comunidad sin perder simplicidad."
-              text="Cada comunidad puede incorporar su nombre, logo, colores e información propia, manteniendo una experiencia consistente y fácil de usar."
-            />
-            <div className="community-variants">
-              {communityVariants.map((variant) => (
-                <div
-                  key={variant.name}
-                  data-reveal
-                  style={{ "--variant-color": variant.color } as CSSProperties}
-                >
-                  <span className="community-variants__mark">{variant.initials}</span>
-                  <strong>{variant.name}</strong>
-                  <p>{variant.detail}</p>
-                </div>
-              ))}
-              <div className="community-variants__ghost" data-reveal>
-                <span>+</span>
-                <strong>Tu comunidad aquí</strong>
-                <p>Se configura en minutos durante el onboarding.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <LiveDemo />
 
         <section id="piloto" className="onboarding-section">
           <div className="section-shell onboarding-layout">
@@ -616,8 +348,6 @@ export function MinkaLanding() {
             <FlowButton href="#demo" text="Agenda tu onboarding" className="onboarding-cta" />
           </div>
         </section>
-
-        <LiveDemo />
 
         <section id="demo" className="demo-section">
           <div className="section-shell demo-layout">

@@ -101,7 +101,7 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
                   <img
                     src={item.src}
                     alt={item.alt}
-                    className="h-full w-full rounded-[1.9rem] object-cover object-top"
+                    className="h-full w-full rounded-[1.9rem] bg-[#faf7f1] object-contain object-top"
                     draggable={false}
                   />
                 </span>

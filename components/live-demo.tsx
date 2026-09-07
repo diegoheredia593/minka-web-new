@@ -268,7 +268,7 @@ export function LiveDemo() {
   );
 
   return (
-    <section className="live-demo-section" aria-labelledby="live-demo-title">
+    <section id="live-demo" className="live-demo-section" aria-labelledby="live-demo-title">
       <div className="section-shell live-demo-layout">
         <SectionIntro
           id="live-demo-title"

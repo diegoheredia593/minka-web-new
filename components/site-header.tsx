@@ -6,11 +6,11 @@ import { Menu, X } from "lucide-react";
 import { FlowButton } from "@/components/ui/flow-button";
 
 const navItems = [
-  { label: "Administración", href: "/#administracion" },
-  { label: "Residentes", href: "/#residentes" },
-  { label: "Cobranzas", href: "/#cobranzas" },
+  { label: "El problema", href: "/#problema-title" },
+  { label: "Cómo funciona", href: "/#minka-title" },
+  { label: "Live demo", href: "/#live-demo" },
+  { label: "Onboarding", href: "/#piloto" },
   { label: "Planes", href: "/planes" },
-  { label: "Demo", href: "/#demo" },
 ];
 
 /**
