@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { SectionIntro } from "@/components/section-intro";
 import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { MacbookPro } from "@/components/ui/macbook-pro";
-import { AdminMobileDemo } from "@/components/admin-mobile-demo";
+import { AdminMobileDemo, type AdminDemoView } from "@/components/admin-mobile-demo";
 
 type Profile = "admin" | "residente";
 type Device = "iphone" | "macbook";
@@ -26,6 +26,74 @@ type DemoLayer = {
 };
 
 type Rect = { top: string; left: string; width: string; height: string };
+
+type PageCopy = {
+  left: { label: string; description: string };
+  right: { label: string; description: string };
+};
+
+const adminPageCopy: Record<AdminDemoView, PageCopy> = {
+  dashboard: {
+    left: { label: "Resumen diario", description: "Reúne las alertas que requieren atención, la cobranza del mes y las reservas próximas en una sola vista." },
+    right: { label: "Decide qué atender primero", description: "La administración identifica pendientes y entra directamente al proceso que necesita resolver." },
+  },
+  reservas: {
+    left: { label: "Reservas", description: "Centraliza todas las solicitudes por espacio, residente, fecha y estado para evitar cruces de horarios." },
+    right: { label: "Control operativo", description: "Permite revisar próximas reservas, pendientes y cancelaciones sin depender de mensajes o agendas externas." },
+  },
+  residentes: {
+    left: { label: "Directorio de residentes", description: "Organiza las personas vinculadas a cada unidad y muestra su estado de cuenta de forma inmediata." },
+    right: { label: "Información accionable", description: "Facilita buscar residentes, comprobar su unidad y detectar quién está al día o mantiene valores vencidos." },
+  },
+  solicitudes: {
+    left: { label: "Solicitudes de acceso", description: "Concentra las peticiones de ingreso de nuevos residentes antes de habilitar su acceso a la comunidad." },
+    right: { label: "Acceso bajo control", description: "La administración valida cada solicitud y evita que una cuenta entre sin estar asociada a una unidad real." },
+  },
+  comunidad: {
+    left: { label: "Comunidad", description: "Agrupa anuncios, eventos y accesos al mapa en el canal oficial de la urbanización." },
+    right: { label: "Comunicación clara", description: "La información importante queda ordenada y disponible sin perderse entre conversaciones informales." },
+  },
+  "eventos-anteriores": {
+    left: { label: "Historial de eventos", description: "Conserva los eventos finalizados para consultarlos sin mezclarlos con la programación vigente." },
+    right: { label: "Memoria organizada", description: "La administración puede revisar actividades anteriores y mantener limpia la vista principal." },
+  },
+  archivados: {
+    left: { label: "Contenido archivado", description: "Guarda anuncios y eventos retirados de la vista de los residentes sin eliminarlos definitivamente." },
+    right: { label: "Orden sin perder información", description: "El contenido antiguo permanece disponible para consulta y trazabilidad administrativa." },
+  },
+  "nuevo-anuncio": {
+    left: { label: "Nuevo anuncio", description: "Permite redactar y publicar información oficial para todos los residentes desde un formulario sencillo." },
+    right: { label: "Un solo canal", description: "Fechas, horarios y detalles quedan visibles en la comunidad sin depender de cadenas de mensajes." },
+  },
+  "nuevo-evento": {
+    left: { label: "Nuevo evento", description: "Crea actividades comunitarias con nombre, fecha, hora, estado y una descripción para los residentes." },
+    right: { label: "Participación informada", description: "Cada evento comunica lo necesario para que los residentes sepan cuándo y cómo participar." },
+  },
+  mapa: {
+    left: { label: "Mapa de la comunidad", description: "Presenta la distribución real de manzanas, villas, áreas comunes y accesos de la urbanización." },
+    right: { label: "Ubicación rápida", description: "Los controles permiten acercar, alejar y recentrar el plano para encontrar cada zona con claridad." },
+  },
+  cobranza: {
+    left: { label: "Cobranza", description: "Resume valores esperados, recaudados y pendientes por periodo, con el estado individual de cada villa." },
+    right: { label: "Seguimiento financiero", description: "Desde aquí se generan alícuotas y cargos extraordinarios, y se detectan saldos vencidos." },
+  },
+  configuracion: {
+    left: { label: "Configuración", description: "Reúne las opciones para adaptar organización, unidades, servicios, cobranza, accesos y equipo." },
+    right: { label: "Minka a tu medida", description: "Cada comunidad activa y configura únicamente los procesos que necesita para operar." },
+  },
+  "cuentas-bancarias": {
+    left: { label: "Cuentas bancarias", description: "Administra las cuentas donde la comunidad recibe directamente las transferencias de sus residentes." },
+    right: { label: "Dinero directo a la comunidad", description: "Minka muestra los datos de pago, pero los fondos permanecen siempre en las cuentas de la organización." },
+  },
+  "areas-servicios": {
+    left: { label: "Áreas y servicios", description: "Configura los espacios que los residentes pueden consultar o reservar dentro de la comunidad." },
+    right: { label: "Oferta organizada", description: "Permite activar, desactivar y ordenar servicios según la operación real de la urbanización." },
+  },
+  "nuevo-servicio": {
+    left: { label: "Nuevo servicio", description: "Define el nombre, icono, disponibilidad y reglas básicas de una nueva área o servicio." },
+    right: { label: "Configuración práctica", description: "La administración incorpora nuevos espacios sin alterar el resto de la experiencia." },
+  },
+};
 
 // Residente only ever runs on mobile (there's no desktop resident portal),
 // so it only needs phone-shaped positions. Admin runs on both, so its four
@@ -120,6 +188,7 @@ function findFirstOfSide(layers: DemoLayer[], side: Side) {
 export function LiveDemo() {
   const [profile, setProfile] = useState<Profile>("admin");
   const [device, setDevice] = useState<Device>("iphone");
+  const [adminView, setAdminView] = useState<AdminDemoView>("dashboard");
   const layers = profile === "residente" ? residentLayers : adminLayers;
 
   const [activeLayerId, setActiveLayerId] = useState(layers[0].id);
@@ -155,12 +224,16 @@ export function LiveDemo() {
   const activeLayer = layers.find((layer) => layer.id === activeLayerId) ?? layers[0];
   const leftLayer = layers.find((layer) => layer.id === leftLayerId) ?? findFirstOfSide(layers, "left");
   const rightLayer = layers.find((layer) => layer.id === rightLayerId) ?? findFirstOfSide(layers, "right");
-  const rects = device === "iphone" ? phoneRects : macbookRects;
-
-  // Real captures only exist for admin on mobile so far. Everywhere else
-  // (residente, or admin on the MacBook frame) still uses the placeholder
-  // rectangles until those screenshots exist.
+  // The navigable admin phone reports its current internal page so both
+  // explanatory cards stay synchronized with the screen being explored.
   const showRealScreenshots = profile === "admin" && device === "iphone";
+  const dynamicAdminCopy = adminPageCopy[adminView];
+  const displayedLeft = showRealScreenshots ? dynamicAdminCopy.left : leftLayer;
+  const displayedRight = showRealScreenshots ? dynamicAdminCopy.right : rightLayer;
+  const displayedMobile = showRealScreenshots
+    ? { label: dynamicAdminCopy.left.label, description: `${dynamicAdminCopy.left.description} ${dynamicAdminCopy.right.description}` }
+    : activeLayer;
+  const rects = device === "iphone" ? phoneRects : macbookRects;
 
   const controls = (
     <div className="live-demo-controls" role="group" aria-label="Configurar vista previa">
@@ -205,14 +278,14 @@ export function LiveDemo() {
         />
 
         <div className="live-demo-copy live-demo-copy--left" data-reveal aria-live="polite">
-          <p className="live-demo-caption__eyebrow">{leftLayer.label}</p>
-          <p className="live-demo-caption__text">{leftLayer.description}</p>
+          <p className="live-demo-caption__eyebrow">{displayedLeft.label}</p>
+          <p className="live-demo-caption__text">{displayedLeft.description}</p>
         </div>
 
         <div className="live-demo-center">
           <div className="live-demo-copy live-demo-copy--mobile" aria-live="polite">
-            <p className="live-demo-caption__eyebrow">{activeLayer.label}</p>
-            <p className="live-demo-caption__text">{activeLayer.description}</p>
+            <p className="live-demo-caption__eyebrow">{displayedMobile.label}</p>
+            <p className="live-demo-caption__text">{displayedMobile.description}</p>
           </div>
 
           {controls}
@@ -226,7 +299,7 @@ export function LiveDemo() {
               )}
               <div className="live-demo-screen">
                 {showRealScreenshots ? (
-                  <AdminMobileDemo />
+                  <AdminMobileDemo onViewChange={setAdminView} />
                 ) : (
                   layers.map((layer, index) => {
                     const isActive = layer.id === activeLayerId;
@@ -253,8 +326,8 @@ export function LiveDemo() {
         </div>
 
         <div className="live-demo-copy live-demo-copy--right" data-reveal aria-live="polite">
-          <p className="live-demo-caption__eyebrow">{rightLayer.label}</p>
-          <p className="live-demo-caption__text">{rightLayer.description}</p>
+          <p className="live-demo-caption__eyebrow">{displayedRight.label}</p>
+          <p className="live-demo-caption__text">{displayedRight.description}</p>
         </div>
       </div>
     </section>
