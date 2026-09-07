@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import {
   ArrowLeft,
   BellRing,
@@ -242,12 +242,18 @@ export function AdminMobileDemo({ onViewChange }: { onViewChange?: (view: AdminD
   const [view, setView] = useState<View>("dashboard");
   const [modal, setModal] = useState<"alicuota" | "extraordinaria" | "cuenta" | null>(null);
   const [toast, setToast] = useState(false);
+  const [cursor, setCursor] = useState({ x: 0, y: 0, visible: false });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const navigate = (next: View) => { setView(next); setModal(null); scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); };
   const fallback = () => setToast(true);
   useEffect(() => { if (!toast) return; const timer = window.setTimeout(() => setToast(false), 2600); return () => window.clearTimeout(timer); }, [toast]);
   useEffect(() => { onViewChange?.(view); }, [onViewChange, view]);
+  const moveCursor = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    setCursor({ x: event.clientX - bounds.left, y: event.clientY - bounds.top, visible: true });
+  };
   const backToMain = () => navigate(mainForView[view]);
 
   let content: ReactNode;
@@ -269,5 +275,5 @@ export function AdminMobileDemo({ onViewChange }: { onViewChange?: (view: AdminD
     case "nuevo-servicio": content = <NewService back={backToMain} fallback={fallback} />; break;
   }
 
-  return <div className="amd-app"><StatusBar /><div ref={scrollRef} className="amd-scroll">{content}</div><BottomNav active={mainForView[view]} navigate={navigate} />{modal ? <DemoModal kind={modal} close={() => setModal(null)} fallback={fallback} /> : null}{toast ? <div className="amd-toast" role="status">Esto es una demostración. Agrega tu comunidad aquí.</div> : null}</div>;
+  return <div className="amd-app" onPointerMove={moveCursor} onPointerLeave={() => setCursor(value => ({ ...value, visible: false }))}><StatusBar /><div ref={scrollRef} className="amd-scroll">{content}</div><BottomNav active={mainForView[view]} navigate={navigate} />{modal ? <DemoModal kind={modal} close={() => setModal(null)} fallback={fallback} /> : null}{toast ? <div className="amd-toast" role="status">Esto es una demostración. Agrega tu comunidad aquí.</div> : null}<span className="amd-cursor" data-visible={cursor.visible} style={{ left: cursor.x, top: cursor.y }} aria-hidden="true" /></div>;
 }

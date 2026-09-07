@@ -1463,6 +1463,73 @@ section[id] {
 .amd-modal > footer { display: flex; justify-content: flex-end; gap: 4px; padding: 10px 14px; border-top: 1px solid var(--amd-line); }
 .amd-toast { position: absolute; left: 50%; bottom: 70px; z-index: 30; width: calc(100% - 28px); padding: 10px 12px; border-radius: 9px; color: #fff; background: #29231f; box-shadow: 0 8px 24px rgba(0,0,0,.2); text-align: center; font-size: 8px; font-weight: 700; }
 
+/* Keep the embedded app legible at the rendered phone size. */
+.amd-app { font-size: 12px; }
+.amd-status { font-size: 11px; }
+.amd-page h4 { font-size: 14px; }
+.amd-page-title p,
+.amd-greeting p { font-size: 10px; }
+.amd-page-title h3 { font-size: 24px; }
+.amd-page-title span { font-size: 11px; }
+.amd-alert-card strong,
+.amd-progress-card strong,
+.amd-booking strong,
+.amd-services strong,
+.amd-reservation strong,
+.amd-resident-list strong,
+.amd-announcement strong,
+.amd-event strong,
+.amd-villa-list button > span,
+.amd-villa-list strong,
+.amd-settings-list strong,
+.amd-bank strong,
+.amd-service-main strong { font-size: 10px; }
+.amd-metric-grid span,
+.amd-metric-grid small,
+.amd-progress-card small,
+.amd-services small,
+.amd-reservation-list > div > small,
+.amd-reservation em,
+.amd-resident-list em,
+.amd-resident-list small,
+.amd-empty-state p,
+.amd-announcement small,
+.amd-event small,
+.amd-collection-meta,
+.amd-settings-list small,
+.amd-bank small,
+.amd-bank button,
+.amd-service-main small,
+.amd-service-list em { font-size: 9px; }
+.amd-button,
+.amd-search,
+.amd-pills button,
+.amd-text-link,
+.amd-legend { font-size: 10px; }
+.amd-toast { font-size: 10px; }
+
+@media (pointer: fine) {
+  .amd-app,
+  .amd-app * { cursor: none !important; }
+}
+
+.amd-cursor {
+  position: absolute;
+  z-index: 60;
+  width: 15px;
+  height: 15px;
+  margin: -7.5px 0 0 -7.5px;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(35, 30, 27, .58);
+  box-shadow: 0 2px 7px rgba(30, 24, 20, .34), 0 0 0 3px rgba(255, 255, 255, .2);
+  transform: scale(.7);
+  transition: opacity .12s ease, transform .12s ease;
+}
+.amd-cursor[data-visible="true"] { opacity: 1; transform: scale(1); }
+
 .live-demo-device__frame--macbook .live-demo-screen {
   left: 11.46%;
   top: 5.33%;
