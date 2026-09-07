@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { SectionIntro } from "@/components/section-intro";
 import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { MacbookPro } from "@/components/ui/macbook-pro";
+import { AdminMobileDemo } from "@/components/admin-mobile-demo";
 
 type Profile = "admin" | "residente";
 type Device = "iphone" | "macbook";
@@ -106,17 +107,6 @@ const macbookRects: Rect[] = [
   { top: "28%", left: "4%", width: "28%", height: "64%" },
   { top: "28%", left: "36%", width: "28%", height: "64%" },
   { top: "28%", left: "68%", width: "28%", height: "64%" },
-];
-
-// Hit targets for the real admin/mobile screenshots, positioned over the
-// app's own bottom nav icons (Panel, Reservas, Residentes, Comunidad,
-// Cobranza, Configuración — 6 evenly spaced icons; we only wire the 4 we
-// have layers/captures for). Indices line up with `adminLayers` above.
-const adminMobileNavRects: Rect[] = [
-  { top: "91%", left: "3%", width: "15%", height: "8%" }, // resumen -> Panel
-  { top: "91%", left: "72%", width: "16%", height: "8%" }, // cobranzas -> Cobranza
-  { top: "91%", left: "38%", width: "15%", height: "8%" }, // residentes -> Residentes
-  { top: "91%", left: "55%", width: "15%", height: "8%" }, // comunicados-admin -> Comunidad
 ];
 
 // Below this width there's no device toggle — mobile visitors only ever see
@@ -236,28 +226,7 @@ export function LiveDemo() {
               )}
               <div className="live-demo-screen">
                 {showRealScreenshots ? (
-                  <>
-                    <img
-                      src={activeLayer.image}
-                      alt={activeLayer.label}
-                      className="live-demo-screen-image"
-                    />
-                    {layers.map((layer, index) => {
-                      const isActive = layer.id === activeLayerId;
-                      return (
-                        <button
-                          key={layer.id}
-                          type="button"
-                          className="live-demo-zone live-demo-zone--nav"
-                          data-active={isActive}
-                          style={adminMobileNavRects[index]}
-                          aria-label={layer.label}
-                          aria-pressed={isActive}
-                          onClick={() => handleZoneClick(layer)}
-                        />
-                      );
-                    })}
-                  </>
+                  <AdminMobileDemo />
                 ) : (
                   layers.map((layer, index) => {
                     const isActive = layer.id === activeLayerId;
