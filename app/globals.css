@@ -345,12 +345,12 @@ section[id] {
 .hero-phone-showcase {
   position: relative;
   z-index: 3;
-  width: min(100%, 1120px);
-  margin: 1.5rem auto 0;
+  width: min(100%, 1220px);
+  margin: 2.1rem auto 0;
 }
 
 .hero-phone-showcase > p {
-  margin: 0 0 -1rem;
+  margin: 0 0 0.35rem;
   color: var(--pine-dark);
   font-size: 0.85rem;
   font-weight: 760;
@@ -1795,7 +1795,7 @@ section[id] {
   }
 
   .hero-phone-showcase {
-    margin-top: 2.6rem;
+    margin-top: 2.2rem;
   }
 
   .hero-content h1 {

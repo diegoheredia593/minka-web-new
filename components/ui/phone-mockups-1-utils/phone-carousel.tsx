@@ -52,7 +52,7 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
 
   return (
     <div
-      className="relative mx-auto grid w-full max-w-[1440px] items-center gap-4 lg:grid-cols-[minmax(180px,1fr)_minmax(580px,760px)_minmax(180px,1fr)] lg:gap-2"
+      className="relative mx-auto grid w-full max-w-[1180px] items-center gap-y-7 xl:grid-cols-[minmax(230px,0.8fr)_minmax(470px,560px)_minmax(230px,0.8fr)] xl:gap-x-8 2xl:grid-cols-[minmax(285px,0.85fr)_minmax(560px,640px)_minmax(285px,0.85fr)] 2xl:gap-x-10"
       aria-roledescription="carrusel"
       aria-label="Vistas de la aplicación Minka"
       onPointerEnter={() => setIsPaused(true)}
@@ -62,7 +62,7 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
         if (!event.currentTarget.contains(event.relatedTarget)) setIsPaused(false);
       }}
     >
-      <div className="order-1 px-2 text-center lg:order-none lg:pr-6 lg:text-left">
+      <div className="order-1 mx-auto max-w-[30rem] px-2 text-center xl:order-none xl:max-w-[17rem] xl:pr-0 xl:text-left 2xl:max-w-[20rem]">
         <div
           key={`title-${activeIndex}`}
           className="animate-in fade-in slide-in-from-bottom-2 duration-500"
@@ -70,14 +70,14 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-[#c66f4a]">
             {activeItem.eyebrow}
           </p>
-          <h3 className="text-3xl font-bold leading-[1.05] text-[#17231f] lg:text-[clamp(2rem,3vw,3.5rem)]">
+          <h3 className="text-3xl font-bold leading-[1.06] text-[#17231f] xl:text-[clamp(2rem,2.25vw,2.8rem)] 2xl:text-[clamp(2.35rem,2.7vw,3.5rem)]">
             {activeItem.title}
           </h3>
         </div>
       </div>
 
       <div className="order-2 flex flex-col items-center">
-        <div className="relative flex min-h-[490px] w-full items-center justify-center sm:min-h-[610px]">
+        <div className="relative flex min-h-[470px] w-full max-w-[560px] items-center justify-center sm:min-h-[560px] xl:min-h-[545px] 2xl:min-h-[610px]">
           {visiblePhones.map(({ item, offset }) => {
             const isActive = offset === 0;
             return (
@@ -85,11 +85,11 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
                 key={item.src}
                 type="button"
                 className={cn(
-                  "phone-carousel-device absolute h-[420px] w-[205px] origin-bottom cursor-pointer rounded-[2.6rem] border-[7px] border-[#17231f] bg-[#17231f] p-0 shadow-[0_35px_80px_rgba(23,35,31,0.24)] transition-all duration-700 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c66f4a]/60 sm:h-[540px] sm:w-[264px]",
+                  "phone-carousel-device absolute h-[410px] w-[201px] origin-bottom cursor-pointer rounded-[2.45rem] border-[7px] border-[#17231f] bg-[#17231f] p-0 shadow-[0_30px_70px_rgba(23,35,31,0.22)] transition-all duration-700 ease-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#c66f4a]/60 sm:h-[500px] sm:w-[245px] xl:h-[492px] xl:w-[240px] 2xl:h-[540px] 2xl:w-[264px]",
                   offset === -1 &&
-                    "-translate-x-[46%] -rotate-[8deg] scale-[0.82] opacity-80 sm:-translate-x-[72%]",
+                    "-translate-x-[42%] -rotate-[7deg] scale-[0.78] opacity-75 sm:-translate-x-[52%] xl:-translate-x-[46%] 2xl:-translate-x-[62%]",
                   offset === 1 &&
-                    "translate-x-[46%] rotate-[8deg] scale-[0.82] opacity-80 sm:translate-x-[72%]",
+                    "translate-x-[42%] rotate-[7deg] scale-[0.78] opacity-75 sm:translate-x-[52%] xl:translate-x-[46%] 2xl:translate-x-[62%]",
                   isActive && "phone-carousel-device--active z-10 scale-100 opacity-100",
                 )}
                 onClick={() => offset !== 0 && move(offset)}
@@ -101,7 +101,7 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
                   <img
                     src={item.src}
                     alt={item.alt}
-                    className="h-full w-full rounded-[1.9rem] bg-[#faf7f1] object-contain object-top"
+                    className="h-full w-full rounded-[1.9rem] bg-[#faf7f1] object-cover object-top"
                     draggable={false}
                   />
                 </span>
@@ -141,12 +141,12 @@ export function PhoneCarousel({ images }: { images: ImageItem[] }) {
         </div>
       </div>
 
-      <div className="order-3 px-2 text-center lg:pl-6 lg:text-left">
+      <div className="order-3 mx-auto max-w-[31rem] px-2 text-center xl:max-w-[17rem] xl:pl-0 xl:text-left 2xl:max-w-[20rem]">
         <div
           key={`description-${activeIndex}`}
           className="animate-in fade-in slide-in-from-bottom-2 duration-500"
         >
-          <p className="text-base leading-7 text-[#17231f]/70 lg:text-lg lg:leading-8">
+          <p className="text-base leading-7 text-[#17231f]/70 xl:text-[1.03rem] xl:leading-8 2xl:text-lg">
             {activeItem.description}
           </p>
           <p className="mt-5 text-sm font-semibold tabular-nums text-[#245b4f]">
