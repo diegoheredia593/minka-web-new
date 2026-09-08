@@ -2,10 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  ArrowRight,
   Building2,
+  CalendarClock,
+  FileSpreadsheet,
+  Inbox,
   KeyRound,
+  MapPinned,
+  MessageCircle,
+  ReceiptText,
   ShieldCheck,
   SlidersHorizontal,
+  Smartphone,
   UsersRound,
 } from "lucide-react";
 
@@ -19,11 +27,49 @@ import { Textarea } from "@/components/ui/textarea";
 import PhoneMockupBasic from "@/components/ui/phone-mockups-1";
 
 const problemItems = [
-  "Grupos de WhatsApp",
-  "Hojas de Excel",
-  "Comprobantes por chat",
-  "Reservas manuales",
-  "Solicitudes dispersas",
+  {
+    icon: MessageCircle,
+    title: "WhatsApp",
+    text: "Avisos, reclamos y comprobantes mezclados en conversaciones.",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "Excel",
+    text: "Listas de residentes, saldos y unidades que se actualizan a mano.",
+  },
+  {
+    icon: ReceiptText,
+    title: "Comprobantes",
+    text: "Pagos que llegan por chat y cuesta reconciliar con cada villa.",
+  },
+  {
+    icon: CalendarClock,
+    title: "Reservas",
+    text: "Horarios administrados entre llamadas, mensajes y confirmaciones.",
+  },
+  {
+    icon: Inbox,
+    title: "Solicitudes",
+    text: "Accesos y pendientes repartidos entre personas del equipo.",
+  },
+];
+
+const definitionItems = [
+  {
+    icon: Building2,
+    title: "Producto para administraciones",
+    text: "La comunidad o administración contrata Minka para ordenar su operación diaria.",
+  },
+  {
+    icon: Smartphone,
+    title: "Admin y residente conectados",
+    text: "El equipo gestiona procesos y los residentes consultan, pagan, reservan y se informan.",
+  },
+  {
+    icon: MapPinned,
+    title: "Diseñada para Ecuador",
+    text: "Pensada para urbanizaciones, condominios y edificios que necesitan control claro.",
+  },
 ];
 
 const controlItems = [
@@ -251,48 +297,84 @@ export function MinkaLanding() {
 
         <section className="problem-section" aria-labelledby="problema-title">
           <div className="section-shell problem-layout">
-            <div data-reveal>
+            <div className="problem-copy" data-reveal>
               <p className="eyebrow">El problema</p>
               <h2 id="problema-title">
-                Administrar una comunidad no debería significar administrar diez herramientas.
+                La operación se fragmenta cuando cada tarea vive en una herramienta distinta.
               </h2>
               <p>
-                Hoy muchas comunidades operan entre mensajes, hojas de cálculo, transferencias,
-                comprobantes enviados por chat, llamadas y anuncios que se pierden.
+                Mensajes, pagos, reservas y solicitudes avanzan por canales separados. La
+                administración termina persiguiendo información en vez de tomar decisiones.
               </p>
             </div>
 
-            <div className="convergence-map" data-reveal>
-              {problemItems.map((item) => (
-                <span key={item}>{item}</span>
-              ))}
-              <strong>Minka</strong>
+            <div className="operations-map" data-reveal>
+              <div className="operations-map__header">
+                <span>Hoy</span>
+                <small>Procesos separados</small>
+              </div>
+              <div className="operations-map__grid">
+                {problemItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <article key={item.title}>
+                      <Icon aria-hidden="true" />
+                      <span>
+                        <strong>{item.title}</strong>
+                        <small>{item.text}</small>
+                      </span>
+                    </article>
+                  );
+                })}
+              </div>
+              <div className="operations-map__bridge" aria-hidden="true">
+                <span />
+                <ArrowRight />
+                <span />
+              </div>
+              <article className="operations-map__minka">
+                <div>
+                  <Building2 aria-hidden="true" />
+                  <strong>Minka</strong>
+                </div>
+                <p>
+                  Un solo espacio para residentes, pagos, reservas, solicitudes y comunicación.
+                </p>
+              </article>
             </div>
           </div>
         </section>
 
         <section className="definition-section" aria-labelledby="minka-title">
           <div className="section-shell definition-grid">
-            <SectionIntro
-              id="minka-title"
-              eyebrow="Qué es"
-              title="La interfaz digital de tu comunidad."
-              text="Minka conecta la operación diaria de la administración con la experiencia cotidiana de los residentes: pagos, reservas, comunicados, solicitudes de acceso, unidades, personal y más."
-            />
+            <div className="definition-copy" data-reveal>
+              <p className="eyebrow">Qué es</p>
+              <h2 id="minka-title">El sistema operativo de tu comunidad.</h2>
+              <p>
+                Minka conecta lo que hace la administración con lo que necesitan los residentes:
+                pagos, reservas, comunicados, accesos, unidades, personal y más.
+              </p>
+              <div className="definition-signal" aria-label="Minka conecta administración, residentes y comunidad">
+                <span>Admin</span>
+                <span>Residentes</span>
+                <span>Comunidad</span>
+              </div>
+            </div>
             <div className="definition-points">
-              {[
-                ["B2B SaaS", "La comunidad o administración es el comprador."],
-                ["Admin + residente", "Ambos lados viven dentro de una misma experiencia."],
-                [
-                  "Guayaquil primero",
-                  "Pensada para urbanizaciones, condominios y edificios en Ecuador.",
-                ],
-              ].map(([title, text]) => (
-                <article key={title} data-reveal>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </article>
-              ))}
+              {definitionItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <article key={item.title} data-reveal>
+                    <span className="definition-point__icon">
+                      <Icon aria-hidden="true" />
+                    </span>
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.text}</p>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
