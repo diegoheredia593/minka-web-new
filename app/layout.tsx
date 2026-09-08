@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: 'Minka - Tu comunidad, mejor organizada',
   description:
     'Minka administra residentes, reservas, cobranzas y comunicación para comunidades residenciales en Ecuador.',
+  icons: {
+    icon: '/brand/minka-icon.svg',
+    apple: '/brand/minka-icon-180.png',
+  },
 };
 
 export default function RootLayout({

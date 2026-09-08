@@ -45,13 +45,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <a className="brand" href="/#inicio" aria-label="Ir al inicio de Minka">
-        <span className="brand-mark" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-          <span />
-        </span>
-        <span>Minka</span>
+        <img className="brand-logo" src="/brand/minka-lockup.svg" alt="Minka" />
       </a>
 
       <nav aria-label="Secciones de Minka">
