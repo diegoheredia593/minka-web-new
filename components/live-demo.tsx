@@ -83,14 +83,14 @@ const adminPageCopy: Record<AdminDemoView, PageCopy> = {
 
 const desktopPageCopy: PageCopy = {
   left: {
-    label: "Panel de administración",
+    label: "Admin desktop",
     description:
-      "El MacBook queda preparado para mostrar el demo navegable de escritorio en pantalla grande.",
+      "La vista de computadora recorre las pantallas reales del administrador, con navegacion por secciones y scroll entre capturas.",
   },
   right: {
-    label: "Sin pantallas ficticias",
+    label: "Fiel a las capturas",
     description:
-      "Hasta que el archivo real esté conectado, la landing no muestra vistas de administración inventadas.",
+      "Cuando una accion no tiene pantalla capturada, la demo lo indica sin inventar un flujo adicional.",
   },
 };
 

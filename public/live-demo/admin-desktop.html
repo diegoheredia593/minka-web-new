@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Minka admin desktop demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f7f2ea;
+        --ink: #17231f;
+        --toast: #0d332b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      .demo-stage {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 911px;
+        overflow: hidden;
+        transform-origin: top left;
+        background: var(--paper);
+        box-shadow: 0 22px 70px rgba(23, 35, 31, 0.12);
+      }
+
+      .demo-screen {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        user-select: none;
+        -webkit-user-drag: none;
+        pointer-events: none;
+      }
+
+      .hotspot-layer {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+      }
+
+      .hotspot {
+        position: absolute;
+        display: block;
+        padding: 0;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: transparent;
+        cursor: pointer;
+      }
+
+      .hotspot:focus-visible {
+        outline: 4px solid rgba(31, 119, 102, 0.5);
+        outline-offset: 2px;
+        background: rgba(31, 119, 102, 0.08);
+      }
+
+      .toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 10;
+        max-width: min(420px, calc(100vw - 36px));
+        padding: 12px 16px;
+        border-radius: 999px;
+        background: var(--toast);
+        color: #fffaf2;
+        box-shadow: 0 18px 42px rgba(13, 51, 43, 0.24);
+        font-size: 14px;
+        font-weight: 750;
+        line-height: 1.3;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(10px);
+        transition:
+          opacity 160ms ease,
+          transform 160ms ease;
+      }
+
+      .toast[data-visible="true"] {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .toast {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="stage" class="demo-stage" aria-label="Demo desktop de Minka">
+      <img id="screen" class="demo-screen" src="/live-demo/admin-desktop/dashboard-a.png" alt="" />
+      <div id="hotspots" class="hotspot-layer" aria-label="Zonas interactivas"></div>
+    </main>
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      Esta es una demo. Agrega tu comunidad para probar esta accion.
+    </div>
+
+    <script>
+      (() => {
+        const SCREEN_WIDTH = 1920;
+        const SCREEN_HEIGHT = 911;
+        const ASSET_ROOT = "/live-demo/admin-desktop/";
+        const DEMO_MESSAGE = "Esta es una demo. Agrega tu comunidad para probar esta accion.";
+
+        const stage = document.getElementById("stage");
+        const screenImage = document.getElementById("screen");
+        const hotspotLayer = document.getElementById("hotspots");
+        const toast = document.getElementById("toast");
+        let currentScreenId = "dashboard-a";
+        let toastTimer = 0;
+        let lastScrollAt = 0;
+        let touchStartY = null;
+
+        const spot = (label, target, x, y, width, height) => ({
+          label,
+          target,
+          x,
+          y,
+          width,
+          height,
+        });
+
+        const demo = (label, x, y, width, height, message = DEMO_MESSAGE) => ({
+          label,
+          message,
+          x,
+          y,
+          width,
+          height,
+        });
+
+        const back = (target) => spot("Volver", target, 570, 45, 52, 44);
+
+        const navHotspots = [
+          spot("Panel", "dashboard-a", 16, 74, 216, 39),
+          spot("Reservas", "reservas-a", 16, 114, 216, 39),
+          spot("Residentes", "residentes-a", 16, 154, 216, 39),
+          spot("Comunidad", "comunidad-a", 16, 194, 216, 39),
+          spot("Cobranza", "cobranza-a", 16, 234, 216, 39),
+          spot("Garita", "control-accesos", 16, 274, 216, 39),
+          spot("Configuracion", "configuracion-a", 16, 806, 216, 38),
+          demo("Cerrar sesion", 16, 862, 216, 38),
+        ];
+
+        const reservaTabs = [
+          demo("Buscar reservas", 582, 128, 706, 43),
+          demo("Filtro servicio", 1298, 139, 140, 42),
+          demo("Filtro estado", 1446, 139, 140, 42),
+          spot("Todas las reservas", "reservas-a", 582, 199, 96, 35),
+          spot("Reservas proximas", "reservas-b", 685, 199, 110, 35),
+          demo("Reservas pendientes", 803, 199, 125, 35),
+          spot("Reservas canceladas", "reservas-d", 935, 199, 126, 35),
+        ];
+
+        const screens = {
+          "dashboard-a": {
+            image: "dashboard-a.png",
+            next: "dashboard-b",
+            hotspots: [
+              demo("Emergencia", 582, 118, 1004, 77),
+              spot("Atencion de cobranza", "cobranza-a", 582, 267, 1004, 70),
+              spot("Pendiente de cobro", "cobranza-a", 582, 361, 495, 76),
+              spot("Recaudado este mes", "cobranza-a", 1090, 361, 496, 76),
+              spot("Ver todas las reservas", "reservas-a", 1518, 458, 72, 30),
+              spot("Reserva de hoy", "reservas-a", 582, 489, 1004, 74),
+              demo("Servicio piscina", 582, 614, 329, 104),
+              demo("Servicio cancha multiple", 919, 614, 329, 104),
+              demo("Servicio salon comunal", 1257, 614, 329, 104),
+              demo("Servicio gimnasio", 582, 727, 1004, 101),
+              spot("Proximo evento", "comunidad-a", 582, 762, 1004, 86),
+              demo("Salir", 1549, 48, 38, 38),
+            ],
+          },
+          "dashboard-b": {
+            image: "dashboard-b.png",
+            prev: "dashboard-a",
+            hotspots: [
+              spot("Atencion de cobranza", "cobranza-a", 582, 149, 1004, 70),
+              spot("Pendiente de cobro", "cobranza-a", 582, 244, 495, 74),
+              spot("Recaudado este mes", "cobranza-a", 1090, 244, 496, 74),
+              spot("Ver todas las reservas", "reservas-a", 1518, 344, 72, 30),
+              spot("Reserva de hoy", "reservas-a", 582, 372, 1004, 74),
+              demo("Servicio piscina", 582, 496, 329, 104),
+              demo("Servicio cancha multiple", 919, 496, 329, 104),
+              demo("Servicio salon comunal", 1257, 496, 329, 104),
+              demo("Servicio gimnasio", 582, 607, 1004, 103),
+              spot("Proximo evento", "comunidad-a", 582, 762, 1004, 86),
+            ],
+          },
+          "reservas-a": {
+            image: "reservas-a.png",
+            next: "reservas-c",
+            hotspots: [
+              ...reservaTabs,
+              demo("Opciones de reserva", 1540, 296, 34, 34),
+              demo("Opciones de reserva", 1540, 413, 34, 34),
+              demo("Opciones de reserva", 1540, 528, 34, 34),
+              demo("Opciones de reserva", 1540, 760, 34, 34),
+            ],
+          },
+          "reservas-b": {
+            image: "reservas-b.png",
+            next: "reservas-c",
+            hotspots: [
+              ...reservaTabs,
+              demo("Opciones de reserva", 1540, 296, 34, 34),
+              demo("Opciones de reserva", 1540, 529, 34, 34),
+              demo("Opciones de reserva", 1540, 761, 34, 34),
+            ],
+          },
+          "reservas-c": {
+            image: "reservas-c.png",
+            prev: "reservas-b",
+            hotspots: [
+              demo("Opciones de reserva", 1540, 91, 34, 34),
+              demo("Opciones de reserva", 1540, 208, 34, 34),
+              demo("Opciones de reserva", 1540, 324, 34, 34),
+              demo("Opciones de reserva", 1540, 440, 34, 34),
+              demo("Opciones de reserva", 1540, 557, 34, 34),
+              demo("Opciones de reserva", 1540, 673, 34, 34),
+              demo("Opciones de reserva", 1540, 789, 34, 34),
+            ],
+          },
+          "reservas-d": {
+            image: "reservas-d.png",
+            hotspots: [
+              ...reservaTabs,
+              demo("Opciones de reserva", 1540, 296, 34, 34),
+              demo("Opciones de reserva", 1540, 413, 34, 34),
+              demo("Opciones de reserva", 1540, 529, 34, 34),
+              demo("Opciones de reserva", 1540, 645, 34, 34),
+            ],
+          },
+          "residentes-a": {
+            image: "residentes-a.png",
+            next: "residentes-b",
+            hotspots: [
+              spot("Solicitudes de acceso", "residentes-solicitud-acceso", 1378, 48, 208, 44),
+              demo("Buscar residentes", 582, 122, 856, 43),
+              demo("Filtro estado", 1446, 134, 140, 42),
+              spot("Ver residente Carla Andrade", "residentes-detalle", 582, 223, 1004, 56),
+              demo("Ver residente Jorge Salinas", 582, 279, 1004, 56),
+              demo("Ver residente Andres Molina", 582, 335, 1004, 56),
+            ],
+          },
+          "residentes-b": {
+            image: "residentes-b.png",
+            prev: "residentes-a",
+            next: "residentes-c",
+            hotspots: [
+              demo("Ver residente", 582, 51, 1004, 55),
+              demo("Ver residente", 582, 107, 1004, 55),
+              demo("Ver residente", 582, 163, 1004, 55),
+              demo("Ver residente", 582, 219, 1004, 55),
+              demo("Ver residente", 582, 275, 1004, 55),
+              demo("Ver residente", 582, 331, 1004, 55),
+              demo("Ver residente", 582, 387, 1004, 55),
+              demo("Ver residente", 582, 443, 1004, 55),
+              demo("Ver residente", 582, 499, 1004, 55),
+              demo("Ver residente", 582, 555, 1004, 55),
+              demo("Ver residente", 582, 611, 1004, 55),
+              demo("Ver residente", 582, 667, 1004, 55),
+              demo("Ver residente", 582, 723, 1004, 55),
+              demo("Ver residente", 582, 779, 1004, 55),
+              demo("Ver residente", 582, 835, 1004, 55),
+            ],
+          },
+          "residentes-c": {
+            image: "residentes-c.png",
+            prev: "residentes-b",
+            hotspots: [
+              demo("Ver residente", 582, 23, 1004, 55),
+              demo("Ver residente", 582, 79, 1004, 55),
+              demo("Ver residente", 582, 135, 1004, 55),
+              demo("Ver residente", 582, 191, 1004, 55),
+              demo("Ver residente", 582, 247, 1004, 55),
+              demo("Ver residente", 582, 303, 1004, 55),
+              demo("Ver residente", 582, 359, 1004, 55),
+              demo("Ver residente", 582, 415, 1004, 55),
+              demo("Ver residente", 582, 471, 1004, 55),
+              demo("Ver residente", 582, 527, 1004, 55),
+              demo("Ver residente", 582, 583, 1004, 55),
+              demo("Ver residente", 582, 639, 1004, 55),
+              demo("Ver residente", 582, 695, 1004, 55),
+              demo("Ver residente", 582, 751, 1004, 55),
+              demo("Ver residente", 582, 807, 1004, 55),
+            ],
+          },
+          "residentes-solicitud-acceso": {
+            image: "residentes-solicitud-acceso.png",
+            hotspots: [
+              back("residentes-a"),
+              demo("Filtro por revisar", 582, 112, 86, 32),
+              demo("Filtro todas", 676, 112, 59, 32),
+            ],
+          },
+          "residentes-detalle": {
+            image: "residentes-detalle.png",
+            hotspots: [
+              back("residentes-a"),
+              demo("Cuenta de residente", 582, 268, 1004, 117),
+              demo("Beneficios de residente", 582, 438, 1004, 165),
+            ],
+          },
+          "comunidad-a": {
+            image: "comunidad-a.png",
+            next: "comunidad-b",
+            hotspots: [
+              demo("Mapa", 1454, 72, 108, 44),
+              spot("Nuevo anuncio", "comunidad-nuevo-anuncio", 1392, 151, 170, 44),
+              spot("Nuevo evento", "comunidad-nuevo-evento", 1400, 472, 162, 44),
+              spot("Nueva encuesta", "comunidad-nueva-encuesta", 1382, 784, 180, 44),
+              demo("Opciones anuncio", 1518, 225, 32, 42),
+              demo("Opciones anuncio", 1518, 334, 32, 42),
+              demo("Ver anuncios anteriores", 996, 421, 170, 28),
+              demo("Opciones evento", 1518, 548, 32, 42),
+              demo("Opciones evento", 1518, 647, 32, 42),
+              demo("Ver evento anterior", 1008, 732, 150, 28),
+            ],
+          },
+          "comunidad-b": {
+            image: "comunidad-b.png",
+            prev: "comunidad-a",
+            hotspots: [
+              spot("Nuevo evento", "comunidad-nuevo-evento", 1400, 194, 162, 44),
+              spot("Nueva encuesta", "comunidad-nueva-encuesta", 1382, 505, 180, 44),
+              demo("Opciones anuncio", 1518, 52, 32, 42),
+              demo("Opciones evento", 1518, 276, 32, 42),
+              demo("Opciones evento", 1518, 374, 32, 42),
+              demo("Ver evento anterior", 1008, 454, 150, 28),
+              demo("Opciones encuesta", 1518, 579, 32, 42),
+              demo("Ver encuesta cerrada", 1002, 674, 166, 28),
+              demo("Ver archivados", 1028, 735, 126, 28),
+            ],
+          },
+          "comunidad-nuevo-anuncio": {
+            image: "comunidad-nuevo-anuncio.png",
+            hotspots: [
+              back("comunidad-a"),
+              demo("Titulo de anuncio", 582, 138, 1004, 44),
+              demo("Descripcion de anuncio", 582, 225, 1004, 119),
+              demo("Fecha de anuncio", 582, 386, 496, 45),
+              demo("Hora de anuncio", 1090, 386, 496, 45),
+              demo("Publicar anuncio", 582, 820, 1004, 43),
+            ],
+          },
+          "comunidad-nuevo-evento": {
+            image: "comunidad-nuevo-evento.png",
+            hotspots: [
+              back("comunidad-a"),
+              demo("Nombre del evento", 582, 138, 1004, 44),
+              demo("Fecha del evento", 582, 225, 496, 45),
+              demo("Hora del evento", 1090, 225, 496, 45),
+              demo("Estado del evento", 582, 312, 1004, 45),
+              demo("Descripcion del evento", 582, 399, 1004, 125),
+              demo("Publicar evento", 582, 820, 1004, 43),
+            ],
+          },
+          "comunidad-nueva-encuesta": {
+            image: "comunidad-nueva-encuesta.png",
+            hotspots: [
+              back("comunidad-a"),
+              demo("Pregunta de encuesta", 582, 137, 1004, 60),
+              demo("Tipo de encuesta", 582, 236, 1004, 43),
+              demo("Opcion de encuesta", 582, 318, 1004, 43),
+              demo("Opcion de encuesta", 582, 371, 1004, 43),
+              demo("Agregar opcion", 582, 421, 1004, 44),
+              demo("Fecha de cierre", 582, 504, 1004, 44),
+              demo("Encuesta anonima", 1546, 592, 40, 24),
+              demo("Crear encuesta", 582, 820, 1004, 43),
+            ],
+          },
+          "cobranza-a": {
+            image: "cobranza-a.png",
+            next: "cobranza-b",
+            hotspots: [
+              demo("Exportar CSV", 1253, 49, 147, 43),
+              demo("Pagos pendientes", 1408, 49, 178, 43),
+              demo("Mes anterior", 582, 106, 32, 32),
+              demo("Mes siguiente", 778, 106, 32, 32),
+              demo("Villas con saldo vencido", 582, 335, 1004, 65),
+              spot("Generar alicuotas", "cobranza-generar-alicuotas", 582, 412, 242, 44),
+              spot("Cuota extraordinaria", "cobranza-cuota-extraordinaria", 831, 412, 213, 44),
+              demo("Buscar villa", 582, 469, 1004, 40),
+              demo("Filtro todas", 582, 525, 76, 34),
+              demo("Filtro vencidas", 666, 525, 94, 34),
+              demo("Filtro pendientes", 768, 525, 102, 34),
+              demo("Filtro al dia", 879, 525, 72, 34),
+              demo("Fila de cobranza", 582, 603, 1004, 44),
+            ],
+          },
+          "cobranza-b": {
+            image: "cobranza-b.png",
+            prev: "cobranza-a",
+            next: "cobranza-c",
+            hotspots: [
+              demo("Fila de cobranza", 582, 23, 1004, 84),
+              demo("Fila de cobranza", 582, 107, 1004, 45),
+              demo("Fila de cobranza", 582, 153, 1004, 45),
+              demo("Fila de cobranza", 582, 198, 1004, 45),
+              demo("Fila de cobranza", 582, 243, 1004, 45),
+              demo("Fila de cobranza", 582, 288, 1004, 45),
+              demo("Fila de cobranza", 582, 333, 1004, 45),
+              demo("Fila de cobranza", 582, 378, 1004, 45),
+              demo("Fila de cobranza", 582, 423, 1004, 45),
+              demo("Fila de cobranza", 582, 468, 1004, 45),
+              demo("Fila de cobranza", 582, 513, 1004, 45),
+              demo("Fila de cobranza", 582, 558, 1004, 45),
+              demo("Fila de cobranza", 582, 603, 1004, 45),
+              demo("Fila de cobranza", 582, 648, 1004, 45),
+              demo("Fila de cobranza", 582, 693, 1004, 45),
+              demo("Fila de cobranza", 582, 738, 1004, 45),
+              demo("Fila de cobranza", 582, 783, 1004, 45),
+              demo("Fila de cobranza", 582, 828, 1004, 45),
+            ],
+          },
+          "cobranza-c": {
+            image: "cobranza-c.png",
+            prev: "cobranza-b",
+            hotspots: [
+              demo("Fila de cobranza", 582, 24, 1004, 48),
+              demo("Fila de cobranza", 582, 73, 1004, 45),
+              demo("Fila de cobranza", 582, 118, 1004, 45),
+              demo("Fila de cobranza", 582, 163, 1004, 45),
+              demo("Fila de cobranza", 582, 208, 1004, 45),
+              demo("Fila de cobranza", 582, 253, 1004, 45),
+              demo("Fila de cobranza", 582, 298, 1004, 45),
+              demo("Fila de cobranza", 582, 343, 1004, 45),
+              demo("Fila de cobranza", 582, 388, 1004, 45),
+              demo("Fila de cobranza", 582, 433, 1004, 45),
+              demo("Fila de cobranza", 582, 478, 1004, 45),
+              demo("Fila de cobranza", 582, 523, 1004, 45),
+              demo("Fila de cobranza", 582, 568, 1004, 45),
+              demo("Fila de cobranza", 582, 613, 1004, 45),
+              demo("Fila de cobranza", 582, 658, 1004, 45),
+              demo("Fila de cobranza", 582, 703, 1004, 45),
+              demo("Fila de cobranza", 582, 748, 1004, 45),
+              demo("Fila de cobranza", 582, 793, 1004, 45),
+              demo("Fila de cobranza", 582, 838, 1004, 45),
+            ],
+          },
+          "cobranza-generar-alicuotas": {
+            image: "cobranza-generar-alicuotas.png",
+            modal: true,
+            closeTarget: "cobranza-a",
+            hotspots: [
+              spot("Cerrar", "cobranza-a", 1145, 298, 44, 44),
+              spot("Cancelar", "cobranza-a", 960, 568, 78, 44),
+              demo("Confirmar generacion", 1043, 567, 140, 44),
+            ],
+          },
+          "cobranza-cuota-extraordinaria": {
+            image: "cobranza-cuota-extraordinaria.png",
+            modal: true,
+            closeTarget: "cobranza-a",
+            hotspots: [
+              spot("Cerrar", "cobranza-a", 1145, 207, 44, 44),
+              spot("Cancelar", "cobranza-a", 950, 657, 88, 44),
+              demo("Confirmar cuota extraordinaria", 1042, 656, 141, 44),
+              demo("Descripcion", 737, 304, 446, 44),
+              demo("Monto por unidad", 737, 387, 446, 44),
+              demo("Fecha de vencimiento", 737, 471, 446, 44),
+            ],
+          },
+          "control-accesos": {
+            image: "control-accesos.png",
+            hotspots: [
+              spot("Bitacora", "control-accesos-bitacora", 1492, 49, 94, 36),
+              demo("Codigo de visita", 582, 177, 1004, 44),
+              demo("Verificar visita", 582, 233, 1004, 44),
+              demo("Registrar salida", 1476, 338, 94, 44),
+              demo("Registrar salida", 1476, 424, 94, 44),
+              demo("Registrar salida", 1476, 510, 94, 44),
+            ],
+          },
+          "control-accesos-bitacora": {
+            image: "control-accesos-bitacora.png",
+            hotspots: [
+              back("control-accesos"),
+              demo("Registro de acceso", 582, 142, 1004, 58),
+              demo("Registro de acceso", 582, 200, 1004, 44),
+              demo("Registro de acceso", 582, 244, 1004, 44),
+              demo("Registro de acceso", 582, 288, 1004, 44),
+              demo("Registro de acceso", 582, 332, 1004, 41),
+            ],
+          },
+          "configuracion-a": {
+            image: "configuracion-a.png",
+            next: "configuracion-b",
+            hotspots: [
+              demo("Modo noche", 1505, 105, 64, 32),
+              spot("Organizacion", "configuracion-organizacion", 582, 168, 1004, 72),
+              demo("Apariencia", 582, 253, 1004, 72),
+              spot("Unidades", "configuracion-unidades-a", 582, 338, 1004, 72),
+              demo("Areas y servicios", 582, 423, 1004, 72),
+              spot("Acceso y beneficios", "configuracion-acceso-beneficios", 582, 508, 1004, 72),
+              spot("Alicuotas", "configuracion-alicuotas", 582, 593, 1004, 72),
+              spot("Cuentas bancarias", "configuracion-cuentas-bancarias", 582, 678, 1004, 72),
+              demo("Acceso de residentes", 582, 763, 1004, 72),
+              spot("Equipo", "configuracion-equipo", 582, 848, 1004, 63),
+            ],
+          },
+          "configuracion-b": {
+            image: "configuracion-b.png",
+            prev: "configuracion-a",
+            hotspots: [
+              spot("Unidades", "configuracion-unidades-a", 582, 24, 1004, 58),
+              demo("Areas y servicios", 582, 95, 1004, 72),
+              spot("Acceso y beneficios", "configuracion-acceso-beneficios", 582, 180, 1004, 72),
+              spot("Alicuotas", "configuracion-alicuotas", 582, 265, 1004, 72),
+              spot("Cuentas bancarias", "configuracion-cuentas-bancarias", 582, 350, 1004, 72),
+              demo("Acceso de residentes", 582, 435, 1004, 72),
+              spot("Equipo", "configuracion-equipo", 582, 520, 1004, 72),
+              demo("Onboarding", 582, 604, 1004, 72),
+              demo("Cambiar contrasena", 582, 689, 1004, 72),
+              demo("Ayuda y soporte", 582, 775, 1004, 72),
+            ],
+          },
+          "configuracion-organizacion": {
+            image: "configuracion-organizacion.png",
+            hotspots: [
+              back("configuracion-a"),
+              demo("Nombre de organizacion", 599, 177, 971, 44),
+              demo("Tipo urbanizacion", 599, 278, 970, 64),
+              demo("Tipo complejo", 599, 349, 970, 64),
+              demo("Tipo condominio", 599, 420, 970, 64),
+              demo("Tipo edificio", 599, 490, 970, 64),
+              demo("Guardar cambios", 582, 616, 180, 44),
+            ],
+          },
+          "configuracion-unidades-a": {
+            image: "configuracion-unidades-a.png",
+            next: "configuracion-unidades-b",
+            hotspots: [
+              back("configuracion-a"),
+              demo("Agregar unidad", 1414, 49, 172, 43),
+              demo("Unidad", 582, 163, 1004, 49),
+              demo("Unidad", 582, 219, 1004, 49),
+              demo("Unidad", 582, 259, 1004, 49),
+              demo("Unidad", 582, 299, 1004, 49),
+              demo("Unidad", 582, 339, 1004, 49),
+              demo("Unidad", 582, 421, 1004, 49),
+              demo("Unidad", 582, 461, 1004, 49),
+              demo("Unidad", 582, 501, 1004, 49),
+              demo("Unidad", 582, 541, 1004, 49),
+              demo("Unidad", 582, 581, 1004, 49),
+              demo("Unidad", 582, 665, 1004, 49),
+              demo("Unidad", 582, 705, 1004, 49),
+              demo("Unidad", 582, 745, 1004, 49),
+              demo("Unidad", 582, 785, 1004, 49),
+              demo("Unidad", 582, 825, 1004, 49),
+            ],
+          },
+          "configuracion-unidades-b": {
+            image: "configuracion-unidades-b.png",
+            prev: "configuracion-unidades-a",
+            hotspots: [
+              demo("Unidad", 582, 39, 1004, 49),
+              demo("Unidad", 582, 79, 1004, 49),
+              demo("Unidad", 582, 119, 1004, 49),
+              demo("Unidad", 582, 159, 1004, 49),
+              demo("Unidad", 582, 213, 1004, 49),
+              demo("Unidad", 582, 253, 1004, 49),
+              demo("Unidad", 582, 293, 1004, 49),
+              demo("Unidad", 582, 333, 1004, 49),
+              demo("Unidad", 582, 373, 1004, 49),
+              demo("Unidad", 582, 453, 1004, 49),
+              demo("Unidad", 582, 493, 1004, 49),
+              demo("Unidad", 582, 533, 1004, 49),
+              demo("Unidad", 582, 573, 1004, 49),
+              demo("Unidad", 582, 613, 1004, 49),
+              demo("Unidad", 582, 699, 1004, 49),
+              demo("Unidad", 582, 739, 1004, 49),
+              demo("Unidad", 582, 779, 1004, 49),
+              demo("Unidad", 582, 819, 1004, 49),
+              demo("Unidad", 582, 859, 1004, 49),
+            ],
+          },
+          "configuracion-acceso-beneficios": {
+            image: "configuracion-acceso-beneficios.png",
+            hotspots: [
+              back("configuracion-a"),
+              demo("Regla general", 1528, 158, 42, 24),
+              demo("Piscina", 697, 280, 40, 22),
+              demo("Cancha multiple", 760, 317, 40, 22),
+              demo("Salon comunal", 749, 354, 40, 22),
+              demo("Gimnasio", 712, 389, 40, 22),
+            ],
+          },
+          "configuracion-alicuotas": {
+            image: "configuracion-alicuotas.png",
+            hotspots: [
+              back("configuracion-a"),
+              demo("Valor mensual", 599, 209, 970, 44),
+              demo("Guardar alicuota", 599, 265, 970, 44),
+              demo("Unidades con valor personalizado", 582, 343, 1004, 70),
+            ],
+          },
+          "configuracion-cuentas-bancarias": {
+            image: "configuracion-cuentas-bancarias.png",
+            hotspots: [
+              back("configuracion-a"),
+              spot("Agregar cuenta", "configuracion-agregar-cuentas", 1414, 49, 172, 43),
+              demo("Editar cuenta bancaria", 1532, 143, 52, 24),
+              demo("Desactivar cuenta bancaria", 1508, 169, 76, 24),
+              demo("Cuenta bancaria", 582, 127, 1004, 91),
+            ],
+          },
+          "configuracion-agregar-cuentas": {
+            image: "configuracion-agregar-cuentas.png",
+            modal: true,
+            closeTarget: "configuracion-cuentas-bancarias",
+            hotspots: [
+              spot("Cerrar", "configuracion-cuentas-bancarias", 1145, 184, 44, 44),
+              spot("Cancelar", "configuracion-cuentas-bancarias", 946, 684, 78, 44),
+              demo("Crear cuenta", 1023, 684, 160, 44),
+              demo("Banco", 737, 275, 446, 44),
+              demo("Titular", 737, 358, 446, 44),
+              demo("Tipo de cuenta", 737, 441, 446, 44),
+              demo("Numero de cuenta", 737, 524, 446, 44),
+              demo("Identificacion", 737, 607, 446, 44),
+            ],
+          },
+          "configuracion-equipo": {
+            image: "configuracion-equipo.png",
+            hotspots: [
+              back("configuracion-a"),
+              spot("Invitar personal", "configuracion-equipo-invitar-personal", 1432, 24, 178, 44),
+              demo("Editar personal", 1558, 118, 48, 24),
+              demo("Suspender acceso", 1492, 143, 100, 24),
+              demo("Persona del equipo", 558, 103, 1051, 146),
+            ],
+          },
+          "configuracion-equipo-invitar-personal": {
+            image: "configuracion-equipo-invitar-personal.png",
+            modal: true,
+            closeTarget: "configuracion-equipo",
+            hotspots: [
+              spot("Cerrar", "configuracion-equipo", 1145, 184, 44, 44),
+              spot("Cancelar", "configuracion-equipo", 946, 684, 78, 44),
+              demo("Enviar invitacion", 1023, 684, 160, 44),
+              demo("Nombre", 737, 275, 446, 44),
+              demo("Correo", 737, 358, 446, 44),
+              demo("Telefono", 737, 441, 446, 44),
+              demo("Permisos", 737, 524, 446, 120),
+            ],
+          },
+        };
+
+        function layoutStage() {
+          const scale = Math.min(
+            window.innerWidth / SCREEN_WIDTH,
+            window.innerHeight / SCREEN_HEIGHT,
+          );
+          const x = (window.innerWidth - SCREEN_WIDTH * scale) / 2;
+          const y = (window.innerHeight - SCREEN_HEIGHT * scale) / 2;
+          stage.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        }
+
+        function showToast(message = DEMO_MESSAGE) {
+          window.clearTimeout(toastTimer);
+          toast.textContent = message;
+          toast.dataset.visible = "true";
+          toastTimer = window.setTimeout(() => {
+            toast.dataset.visible = "false";
+          }, 2400);
+        }
+
+        function buildHotspots(screen) {
+          hotspotLayer.replaceChildren();
+          const activeHotspots = screen.modal
+            ? screen.hotspots || []
+            : [...navHotspots, ...(screen.hotspots || [])];
+
+          activeHotspots.forEach((item) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "hotspot";
+            button.setAttribute("aria-label", item.label);
+            button.title = item.label;
+            button.style.left = `${item.x}px`;
+            button.style.top = `${item.y}px`;
+            button.style.width = `${item.width}px`;
+            button.style.height = `${item.height}px`;
+            button.addEventListener("click", () => {
+              if (item.target) {
+                setScreen(item.target);
+                return;
+              }
+              showToast(item.message);
+            });
+            hotspotLayer.append(button);
+          });
+        }
+
+        function setScreen(id, updateHash = true) {
+          const nextScreen = screens[id] || screens["dashboard-a"];
+          currentScreenId = screens[id] ? id : "dashboard-a";
+          screenImage.src = `${ASSET_ROOT}${nextScreen.image}`;
+          buildHotspots(nextScreen);
+
+          if (updateHash) {
+            window.history.replaceState(null, "", `#${currentScreenId}`);
+          }
+        }
+
+        function moveByScroll(direction) {
+          const current = screens[currentScreenId];
+          const target = direction > 0 ? current.next : current.prev;
+          if (target) {
+            setScreen(target);
+          }
+        }
+
+        window.addEventListener("resize", layoutStage);
+
+        window.addEventListener(
+          "wheel",
+          (event) => {
+            if (Math.abs(event.deltaY) < 24 || Math.abs(event.deltaY) < Math.abs(event.deltaX)) {
+              return;
+            }
+
+            event.preventDefault();
+            const now = Date.now();
+            if (now - lastScrollAt < 420) return;
+            lastScrollAt = now;
+            moveByScroll(event.deltaY);
+          },
+          { passive: false },
+        );
+
+        stage.addEventListener(
+          "touchstart",
+          (event) => {
+            touchStartY = event.changedTouches[0]?.clientY ?? null;
+          },
+          { passive: true },
+        );
+
+        stage.addEventListener(
+          "touchend",
+          (event) => {
+            if (touchStartY === null) return;
+            const endY = event.changedTouches[0]?.clientY ?? touchStartY;
+            const deltaY = touchStartY - endY;
+            touchStartY = null;
+            if (Math.abs(deltaY) > 44) moveByScroll(deltaY);
+          },
+          { passive: true },
+        );
+
+        window.addEventListener("keydown", (event) => {
+          const current = screens[currentScreenId];
+          if (event.key === "Escape" && current.closeTarget) {
+            event.preventDefault();
+            setScreen(current.closeTarget);
+          }
+          if (event.key === "ArrowDown" || event.key === "PageDown" || event.key === " ") {
+            event.preventDefault();
+            moveByScroll(1);
+          }
+          if (event.key === "ArrowUp" || event.key === "PageUp") {
+            event.preventDefault();
+            moveByScroll(-1);
+          }
+        });
+
+        window.addEventListener("hashchange", () => {
+          const requested = window.location.hash.replace("#", "");
+          if (requested && screens[requested]) setScreen(requested, false);
+        });
+
+        Object.values(screens).forEach((screen) => {
+          const image = new Image();
+          image.src = `${ASSET_ROOT}${screen.image}`;
+        });
+
+        const initialScreen = window.location.hash.replace("#", "");
+        layoutStage();
+        setScreen(initialScreen && screens[initialScreen] ? initialScreen : "dashboard-a", false);
+      })();
+    </script>
+  </body>
+</html>
