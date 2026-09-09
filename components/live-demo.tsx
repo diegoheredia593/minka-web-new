@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SectionIntro } from "@/components/section-intro";
 import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
+import { MacbookPro } from "@/components/ui/macbook-pro";
 import { AdminMobileDemo, type AdminDemoView } from "@/components/admin-mobile-demo";
+
+type Device = "iphone" | "macbook";
 
 type PageCopy = {
   left: { label: string; description: string };
   right: { label: string; description: string };
 };
+
+// Drop the navigable desktop admin HTML in /public/live-demo/admin-desktop.html.
+const ADMIN_DESKTOP_DEMO_SRC = "/live-demo/admin-desktop.html";
+const MOBILE_BREAKPOINT = 980;
 
 const adminPageCopy: Record<AdminDemoView, PageCopy> = {
   dashboard: {
@@ -74,13 +81,80 @@ const adminPageCopy: Record<AdminDemoView, PageCopy> = {
   },
 };
 
+const desktopPageCopy: PageCopy = {
+  left: {
+    label: "Panel de administración",
+    description:
+      "El MacBook queda preparado para mostrar el demo navegable de escritorio en pantalla grande.",
+  },
+  right: {
+    label: "Sin pantallas ficticias",
+    description:
+      "Hasta que el archivo real esté conectado, la landing no muestra vistas de administración inventadas.",
+  },
+};
+
+function AdminDesktopDemoFrame() {
+  const [isDesktopDemoReady, setIsDesktopDemoReady] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch(ADMIN_DESKTOP_DEMO_SRC, { method: "HEAD", cache: "no-store" })
+      .then((response) => {
+        if (isMounted) setIsDesktopDemoReady(response.ok);
+      })
+      .catch(() => {
+        if (isMounted) setIsDesktopDemoReady(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (isDesktopDemoReady) {
+    return (
+      <iframe
+        className="live-demo-desktop-iframe"
+        src={ADMIN_DESKTOP_DEMO_SRC}
+        title="Demo de administración de Minka en computadora"
+        loading="lazy"
+        sandbox="allow-forms allow-same-origin allow-scripts"
+      />
+    );
+  }
+
+  return (
+    <div className="live-demo-desktop-empty">
+      <span>Vista de computadora</span>
+      <strong>Demo web en preparación</strong>
+      <p>Aquí aparecerá el demo navegable de escritorio.</p>
+    </div>
+  );
+}
+
 export function LiveDemo() {
+  const [device, setDevice] = useState<Device>("iphone");
   const [adminView, setAdminView] = useState<AdminDemoView>("dashboard");
-  const dynamicAdminCopy = adminPageCopy[adminView];
+  const dynamicAdminCopy = device === "iphone" ? adminPageCopy[adminView] : desktopPageCopy;
   const displayedMobile = {
     label: dynamicAdminCopy.left.label,
     description: `${dynamicAdminCopy.left.description} ${dynamicAdminCopy.right.description}`,
   };
+
+  useEffect(() => {
+    const enforcePhoneOnSmallScreens = () => {
+      if (window.innerWidth <= MOBILE_BREAKPOINT) setDevice("iphone");
+    };
+
+    enforcePhoneOnSmallScreens();
+    window.addEventListener("resize", enforcePhoneOnSmallScreens);
+
+    return () => {
+      window.removeEventListener("resize", enforcePhoneOnSmallScreens);
+    };
+  }, []);
 
   return (
     <section id="live-demo" className="live-demo-section" aria-labelledby="live-demo-title">
@@ -89,7 +163,7 @@ export function LiveDemo() {
           id="live-demo-title"
           eyebrow="Live Demo"
           title="Así se ve Minka por dentro."
-          text="Explora la versión móvil de administrador y toca sus rutas principales para descubrir cómo opera una comunidad."
+          text="Explora la versión móvil de administrador y cambia a computadora para revisar la vista de escritorio."
         />
 
         <div className="live-demo-copy live-demo-copy--left" data-reveal aria-live="polite">
@@ -103,12 +177,33 @@ export function LiveDemo() {
             <p className="live-demo-caption__text">{displayedMobile.description}</p>
           </div>
 
+          <div className="live-demo-controls" role="group" aria-label="Cambiar dispositivo del demo">
+            <div className="live-demo-toggle live-demo-toggle--device" role="group" aria-label="Dispositivo">
+              <button type="button" aria-pressed={device === "iphone"} onClick={() => setDevice("iphone")}>
+                Teléfono
+              </button>
+              <button type="button" aria-pressed={device === "macbook"} onClick={() => setDevice("macbook")}>
+                Computadora
+              </button>
+            </div>
+          </div>
+
           <div className="live-demo-device" data-reveal>
-            <div className="live-demo-device__frame live-demo-device__frame--iphone">
-              <Iphone16Pro className="live-demo-device__svg" />
+            <div className={`live-demo-device__frame live-demo-device__frame--${device}`}>
+              {device === "iphone" ? (
+                <Iphone16Pro className="live-demo-device__svg" />
+              ) : (
+                <MacbookPro className="live-demo-device__svg" />
+              )}
               <div className="live-demo-screen">
-                <AdminMobileDemo onViewChange={setAdminView} />
-                <div className="live-demo-notch" aria-hidden="true" />
+                {device === "iphone" ? (
+                  <>
+                    <AdminMobileDemo onViewChange={setAdminView} />
+                    <div className="live-demo-notch" aria-hidden="true" />
+                  </>
+                ) : (
+                  <AdminDesktopDemoFrame />
+                )}
               </div>
             </div>
           </div>
