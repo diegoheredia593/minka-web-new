@@ -1275,14 +1275,15 @@ section[id] {
 }
 
 .live-demo-layout {
+  width: min(1500px, calc(100% - 6vw));
   display: grid;
-  grid-template-columns: minmax(210px, 1fr) minmax(380px, 820px) minmax(210px, 1fr);
+  grid-template-columns: minmax(160px, 220px) minmax(560px, 1020px) minmax(160px, 220px);
   grid-template-areas:
     "intro intro intro"
     "left center right";
   align-items: center;
   row-gap: 1.6rem;
-  column-gap: 1.8rem;
+  column-gap: 1.2rem;
 }
 
 .live-demo-layout > .section-intro {
@@ -1401,7 +1402,7 @@ section[id] {
 }
 
 .live-demo-device__frame--macbook {
-  max-width: 820px;
+  max-width: 1020px;
 }
 
 .live-demo-device__svg {

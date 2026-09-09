@@ -33,7 +33,7 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 1920px;
+        width: 1410px;
         height: 911px;
         overflow: hidden;
         transform-origin: top left;
@@ -121,10 +121,14 @@
 
     <script>
       (() => {
-        const SCREEN_WIDTH = 1920;
+        const SCREEN_WIDTH = 1410;
         const SCREEN_HEIGHT = 911;
         const ASSET_ROOT = "/live-demo/admin-desktop/";
         const DEMO_MESSAGE = "Esta es una demo. Agrega tu comunidad para probar esta accion.";
+        const HORIZONTAL_CUTS = [
+          { start: 248, end: 518, width: 270 },
+          { start: 1660, end: 1900, width: 240 },
+        ];
 
         const stage = document.getElementById("stage");
         const screenImage = document.getElementById("screen");
@@ -672,7 +676,7 @@
         };
 
         function layoutStage() {
-          const scale = Math.min(
+          const scale = Math.max(
             window.innerWidth / SCREEN_WIDTH,
             window.innerHeight / SCREEN_HEIGHT,
           );
@@ -690,6 +694,38 @@
           }, 2400);
         }
 
+        function mapSourceX(x) {
+          let mappedX = x;
+          let removedWidth = 0;
+
+          for (const cut of HORIZONTAL_CUTS) {
+            if (x >= cut.end) {
+              mappedX -= cut.width;
+              removedWidth += cut.width;
+              continue;
+            }
+
+            if (x > cut.start) {
+              mappedX = cut.start - removedWidth;
+              break;
+            }
+          }
+
+          return Math.max(0, Math.min(SCREEN_WIDTH, mappedX));
+        }
+
+        function mapHotspot(item) {
+          const x = mapSourceX(item.x);
+          const right = mapSourceX(item.x + item.width);
+
+          return {
+            x,
+            y: item.y,
+            width: Math.max(8, right - x),
+            height: item.height,
+          };
+        }
+
         function buildHotspots(screen) {
           hotspotLayer.replaceChildren();
           const activeHotspots = screen.modal
@@ -702,10 +738,11 @@
             button.className = "hotspot";
             button.setAttribute("aria-label", item.label);
             button.title = item.label;
-            button.style.left = `${item.x}px`;
-            button.style.top = `${item.y}px`;
-            button.style.width = `${item.width}px`;
-            button.style.height = `${item.height}px`;
+            const bounds = mapHotspot(item);
+            button.style.left = `${bounds.x}px`;
+            button.style.top = `${bounds.y}px`;
+            button.style.width = `${bounds.width}px`;
+            button.style.height = `${bounds.height}px`;
             button.addEventListener("click", () => {
               if (item.target) {
                 setScreen(item.target);
