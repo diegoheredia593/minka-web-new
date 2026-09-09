@@ -149,73 +149,27 @@ export function MinkaLanding() {
       message: String(formData.get("message") ?? ""),
     };
 
-    const compact = (fields: { name: string; value: string }[]) =>
-      fields.filter((field) => field.value.trim().length > 0);
-
-    const fieldSets = [
-      compact([
-        { name: "firstname", value: values.name },
-        { name: "email", value: values.email },
-        { name: "phone", value: values.phone },
-        { name: "numero_de_unidades", value: values.units },
-        { name: "nombre_de_la_comunidad", value: values.community },
-        { name: "necesidad_principal", value: values.message },
-      ]),
-      compact([
-        { name: "firstname", value: values.name },
-        { name: "email", value: values.email },
-        { name: "whatsapp", value: values.phone },
-        { name: "unidades", value: values.units },
-        { name: "comunidad", value: values.community },
-        { name: "que_te_gustaria_ordenar_primero", value: values.message },
-      ]),
-      compact([
-        { name: "firstname", value: values.name },
-        { name: "email", value: values.email },
-        { name: "phone", value: values.phone },
-        { name: "units", value: values.units },
-        { name: "community", value: values.community },
-        { name: "message", value: values.message },
-      ]),
-      compact([
-        { name: "firstname", value: values.name },
-        { name: "email", value: values.email },
-        { name: "phone", value: values.phone },
-      ]),
-    ];
-
     try {
-      let acceptedFieldSet = -1;
+      const response = await fetch("/api/demo-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...values,
+          pageName: document.title,
+          pageUri: window.location.href,
+        }),
+      });
+      const result = (await response.json()) as {
+        ok?: boolean;
+        mode?: "crm" | "forms" | "partial" | "ignored";
+      };
 
-      for (let index = 0; index < fieldSets.length; index += 1) {
-        const response = await fetch(
-          "https://api.hsforms.com/submissions/v3/integration/submit/51970751/d2cac2e3-232c-47f8-9f21-3856a09a2dfd",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              submittedAt: String(Date.now()),
-              fields: fieldSets[index],
-              context: {
-                pageName: document.title,
-                pageUri: window.location.href,
-              },
-            }),
-          },
-        );
-
-        if (response.ok) {
-          acceptedFieldSet = index;
-          break;
-        }
-
-        if (response.status !== 400) throw new Error("HubSpot rejected the submission");
+      if (!response.ok || !result.ok) {
+        throw new Error("HubSpot rejected the submission");
       }
 
-      if (acceptedFieldSet === -1) throw new Error("HubSpot rejected every field mapping");
-
       form.reset();
-      setFormStatus(acceptedFieldSet === fieldSets.length - 1 ? "partial" : "success");
+      setFormStatus(result.mode === "partial" ? "partial" : "success");
     } catch {
       setFormStatus("error");
     }
