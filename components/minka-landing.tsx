@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LiveDemo } from "@/components/live-demo";
 import { SectionIntro } from "@/components/section-intro";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Textarea } from "@/components/ui/textarea";
 import PhoneMockupBasic from "@/components/ui/phone-mockups-1";
@@ -522,6 +523,8 @@ export function MinkaLanding() {
           </div>
         </section>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

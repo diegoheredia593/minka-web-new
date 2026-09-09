@@ -2,6 +2,7 @@
 
 import { FlowButton } from "@/components/ui/flow-button";
 import { Pricing, type PricingPlan } from "@/components/ui/pricing";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
 // Every plan CTA points back to the demo form on the landing page,
@@ -71,6 +72,8 @@ export function PlanesPage() {
           </div>
         </section>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }
