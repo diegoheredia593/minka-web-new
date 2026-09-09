@@ -139,6 +139,11 @@
         let lastScrollAt = 0;
         let touchStartY = null;
 
+        function notifyParent(payload) {
+          if (window.parent === window) return;
+          window.parent.postMessage(payload, window.location.origin);
+        }
+
         const spot = (label, target, x, y, width, height) => ({
           label,
           target,
@@ -748,6 +753,7 @@
                 setScreen(item.target);
                 return;
               }
+              notifyParent({ type: "minka-desktop-demo:action", label: item.label });
               showToast(item.message);
             });
             hotspotLayer.append(button);
@@ -763,6 +769,8 @@
           if (updateHash) {
             window.history.replaceState(null, "", `#${currentScreenId}`);
           }
+
+          notifyParent({ type: "minka-desktop-demo:view", view: currentScreenId });
         }
 
         function moveByScroll(direction) {
