@@ -468,7 +468,7 @@ function AdminDesktopDemoFrame() {
 }
 
 export function LiveDemo() {
-  const [device, setDevice] = useState<Device>("iphone");
+  const [device, setDevice] = useState<Device>("macbook");
   const [adminView, setAdminView] = useState<AdminDemoView>("dashboard");
   const [desktopCopy, setDesktopCopy] = useState<PageCopy>(
     desktopPageCopy[DEFAULT_DESKTOP_VIEW],
@@ -526,7 +526,7 @@ export function LiveDemo() {
           id="live-demo-title"
           eyebrow="Live Demo"
           title="Así se ve Minka por dentro."
-          text="Explora la versión móvil de administrador y cambia a computadora para revisar la vista de escritorio."
+          text="Recorre la administración en computadora y cambia a teléfono para revisar la experiencia móvil."
         />
 
         <div className="live-demo-copy live-demo-copy--left" data-reveal aria-live="polite">

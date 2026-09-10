@@ -25,7 +25,6 @@ import { SectionIntro } from "@/components/section-intro";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Textarea } from "@/components/ui/textarea";
-import PhoneMockupBasic from "@/components/ui/phone-mockups-1";
 
 const problemItems = [
   {
@@ -190,14 +189,6 @@ export function MinkaLanding() {
 
       gsap.registerPlugin(ScrollTrigger);
       const ctx = gsap.context(() => {
-        gsap.from("[data-hero]", {
-          y: 26,
-          opacity: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          stagger: 0.1,
-        });
-
         gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
           gsap.from(element, {
             y: 34,
@@ -226,29 +217,9 @@ export function MinkaLanding() {
       <SiteHeader />
 
       <main>
-        <section id="inicio" className="hero-section">
-          <div className="hero-content">
-            <p data-hero className="eyebrow">
-              Plataforma para comunidades residenciales
-            </p>
-            <h1 data-hero>Tu comunidad, mejor organizada.</h1>
-            <p data-hero className="hero-copy">
-              Administra residentes, reservas, cobranzas y comunicación desde un solo lugar, con una
-              experiencia simple para la administración y para quienes viven en la comunidad.
-            </p>
-            <div data-hero className="hero-actions">
-              <FlowButton href="#demo" text="Agenda una demostración" className="px-7 py-3.5" />
-              <a className="secondary-link" href="#piloto">
-                Postular mi comunidad al piloto
-              </a>
-            </div>
-          </div>
-
-          <div className="hero-phone-showcase" data-hero>
-            <p>Explora la experiencia de Minka</p>
-            <PhoneMockupBasic />
-          </div>
-        </section>
+        <div id="inicio">
+          <LiveDemo />
+        </div>
 
         <section className="problem-section" aria-labelledby="problema-title">
           <div className="section-shell problem-layout">
@@ -356,8 +327,6 @@ export function MinkaLanding() {
             </div>
           </div>
         </section>
-
-        <LiveDemo />
 
         <section id="piloto" className="onboarding-section">
           <div className="section-shell onboarding-layout">
