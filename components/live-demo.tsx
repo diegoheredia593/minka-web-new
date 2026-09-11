@@ -559,26 +559,26 @@ export function LiveDemo() {
   return (
     <section id="live-demo" className="live-demo-section" aria-labelledby="live-demo-title">
       <div className="live-demo-landscape" aria-hidden="true">
-        <svg viewBox="0 0 1600 420" preserveAspectRatio="none">
-          <path d="M0 330h130l34-40 33 40h94l48-69 48 69h140l32-34 32 34h160l51-76 52 76h126l39-49 40 49h211" />
-          <path d="M45 330v-64l39-30 39 30v64m-58 0v-39h38v39m196 0v-91l49-37 49 37v91m-71 0v-48h44v48m225 0v-58l36-28 37 28v58m-55 0v-34h31v34m182 0v-102l55-42 55 42v102m-79 0v-52h47v52m215 0v-73l43-33 43 33v73m-63 0v-41h39v41" />
-          <path d="M148 330v-73m-25 16 25-31 26 31m-26 16-33-35m33 35 34-35m288 76v-79m-27 17 27-35 28 35m-28 16-37-39m37 39 37-39m373 95v-78m-27 17 27-35 28 35m-28 16-37-39m37 39 37-39m322 95v-72m-25 15 25-31 26 31m-26 15-33-35m33 35 34-35" />
-          <path d="M0 331h1600M0 365c235-22 390 22 610 0s391 23 602 0 272 3 388-9" />
-        </svg>
+        <img src="/images/minka-community-landscape.png" alt="" />
       </div>
 
       <div className="section-shell live-demo-layout" data-device={device}>
         <header className="live-demo-intro">
           <p className="live-demo-intro__eyebrow">Minka en acción</p>
           <h1 id="live-demo-title">Administra tu comunidad sin caos</h1>
+          <p className="live-demo-intro__text">
+            Centraliza pagos, residentes, solicitudes y comunicación en un solo lugar. Explora el demo y descubre cómo funciona Minka en tu comunidad.
+          </p>
           <button className="live-demo-see-how" type="button" onClick={() => document.querySelector(".live-demo-device")?.scrollIntoView({ behavior: "smooth", block: "center" })}>
             Mira cómo
             <ArrowDown aria-hidden="true" />
           </button>
         </header>
 
-        <div className="live-demo-shortcuts live-demo-shortcuts--left" data-reveal>
+        <div className="live-demo-shortcuts live-demo-shortcuts--rail" aria-label="Explorar funciones del demo">
           {renderShortcuts(heroShortcuts.slice(0, 2))}
+          <span className="live-demo-shortcuts__phone-space" aria-hidden="true" />
+          {renderShortcuts(heroShortcuts.slice(2))}
         </div>
 
         <div className="live-demo-center">
@@ -618,10 +618,6 @@ export function LiveDemo() {
               {device === "iphone" ? <div className="live-demo-glare" aria-hidden="true" /> : null}
             </div>
           </div>
-        </div>
-
-        <div className="live-demo-shortcuts live-demo-shortcuts--right" data-reveal>
-          {renderShortcuts(heroShortcuts.slice(2))}
         </div>
       </div>
     </section>
