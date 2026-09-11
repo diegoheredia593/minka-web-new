@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { ArrowDown, Building2, CircleDollarSign, ClipboardCheck, UsersRound } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowDown, Building2, CalendarDays, CircleDollarSign, LayoutDashboard, Settings, UsersRound } from "lucide-react";
 
 import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { MacbookPro } from "@/components/ui/macbook-pro";
@@ -18,16 +18,29 @@ type PageCopy = {
 const ADMIN_DESKTOP_DEMO_SRC = "/live-demo/admin-desktop.html";
 const MOBILE_BREAKPOINT = 980;
 
+type DemoShortcutView = "dashboard" | "reservas" | "residentes" | "comunidad" | "cobranza" | "configuracion";
+
 const heroShortcuts: Array<{
   label: string;
-  view: AdminDemoView;
+  view: DemoShortcutView;
   icon: typeof CircleDollarSign;
 }> = [
-  { label: "Pagos y cobranza", view: "cobranza", icon: CircleDollarSign },
-  { label: "Residentes al día", view: "residentes", icon: UsersRound },
-  { label: "Solicitudes resueltas", view: "solicitudes", icon: ClipboardCheck },
-  { label: "Comunidad en orden", view: "comunidad", icon: Building2 },
+  { label: "Panel", view: "dashboard", icon: LayoutDashboard },
+  { label: "Reservas", view: "reservas", icon: CalendarDays },
+  { label: "Residentes", view: "residentes", icon: UsersRound },
+  { label: "Comunidad", view: "comunidad", icon: Building2 },
+  { label: "Cobranza", view: "cobranza", icon: CircleDollarSign },
+  { label: "Configuración", view: "configuracion", icon: Settings },
 ];
+
+const desktopShortcutViews: Record<DemoShortcutView, DesktopDemoView> = {
+  dashboard: "dashboard-a",
+  reservas: "reservas-a",
+  residentes: "residentes-a",
+  comunidad: "comunidad-a",
+  cobranza: "cobranza-a",
+  configuracion: "configuracion-a",
+};
 
 const adminPageCopy: Record<AdminDemoView, PageCopy> = {
   dashboard: {
@@ -407,6 +420,24 @@ function isDesktopDemoView(view: string): view is DesktopDemoView {
   return view in desktopPageCopy;
 }
 
+function shortcutForDesktopView(view: DesktopDemoView): DemoShortcutView {
+  if (view.startsWith("reservas")) return "reservas";
+  if (view.startsWith("residentes")) return "residentes";
+  if (view.startsWith("comunidad")) return "comunidad";
+  if (view.startsWith("cobranza")) return "cobranza";
+  if (view.startsWith("configuracion")) return "configuracion";
+  return "dashboard";
+}
+
+function shortcutForMobileView(view: AdminDemoView): DemoShortcutView {
+  if (view === "reservas") return "reservas";
+  if (view === "residentes" || view === "solicitudes") return "residentes";
+  if (["comunidad", "eventos-anteriores", "archivados", "nuevo-anuncio", "nuevo-evento", "mapa"].includes(view)) return "comunidad";
+  if (view === "cobranza") return "cobranza";
+  if (["configuracion", "cuentas-bancarias", "areas-servicios", "nuevo-servicio"].includes(view)) return "configuracion";
+  return "dashboard";
+}
+
 function isDesktopDemoMessage(data: unknown): data is DesktopDemoMessage {
   if (typeof data !== "object" || data === null || !("type" in data)) {
     return false;
@@ -438,8 +469,16 @@ function createDesktopActionCopy(label: string): PageCopy {
   };
 }
 
-function AdminDesktopDemoFrame() {
+function AdminDesktopDemoFrame({ requestedView }: { requestedView: DesktopDemoView }) {
   const [isDesktopDemoReady, setIsDesktopDemoReady] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const navigateDesktopDemo = useCallback(() => {
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: "minka-desktop-demo:navigate", view: requestedView },
+      window.location.origin,
+    );
+  }, [requestedView]);
 
   useEffect(() => {
     let isMounted = true;
@@ -457,14 +496,20 @@ function AdminDesktopDemoFrame() {
     };
   }, []);
 
+  useEffect(() => {
+    if (isDesktopDemoReady) navigateDesktopDemo();
+  }, [isDesktopDemoReady, navigateDesktopDemo]);
+
   if (isDesktopDemoReady) {
     return (
       <iframe
+        ref={iframeRef}
         className="live-demo-desktop-iframe"
-        src={ADMIN_DESKTOP_DEMO_SRC}
+        src={`${ADMIN_DESKTOP_DEMO_SRC}#${requestedView}`}
         title="Demo de administración de Minka en computadora"
         loading="lazy"
         sandbox="allow-forms allow-same-origin allow-scripts"
+        onLoad={navigateDesktopDemo}
       />
     );
   }
@@ -482,11 +527,12 @@ export function LiveDemo() {
   const [device, setDevice] = useState<Device>("iphone");
   const [adminView, setAdminView] = useState<AdminDemoView>("dashboard");
   const [requestedAdminView, setRequestedAdminView] = useState<AdminDemoView>();
+  const [desktopView, setDesktopView] = useState<DesktopDemoView>(DEFAULT_DESKTOP_VIEW);
   const [desktopCopy, setDesktopCopy] = useState<PageCopy>(
     desktopPageCopy[DEFAULT_DESKTOP_VIEW],
   );
   const dynamicAdminCopy = device === "iphone" ? adminPageCopy[adminView] : desktopCopy;
-  const displayedMobile = {
+  const displayedContext = {
     label: dynamicAdminCopy.left.label,
     description: `${dynamicAdminCopy.left.description} ${dynamicAdminCopy.right.description}`,
   };
@@ -516,6 +562,7 @@ export function LiveDemo() {
 
       if (event.data.type === "minka-desktop-demo:view") {
         if (isDesktopDemoView(event.data.view)) {
+          setDesktopView(event.data.view);
           setDesktopCopy(desktopPageCopy[event.data.view]);
         }
         return;
@@ -531,10 +578,30 @@ export function LiveDemo() {
     };
   }, []);
 
-  const openMobileView = (view: AdminDemoView) => {
+  const openDemoView = (view: DemoShortcutView) => {
+    if (device === "iphone") {
+      setAdminView(view);
+      setRequestedAdminView(view);
+      return;
+    }
+
+    const nextDesktopView = desktopShortcutViews[view];
+    setDesktopView(nextDesktopView);
+    setDesktopCopy(desktopPageCopy[nextDesktopView]);
+  };
+
+  const showPhone = () => {
+    const nextMobileView = shortcutForDesktopView(desktopView);
+    setAdminView(nextMobileView);
+    setRequestedAdminView(nextMobileView);
     setDevice("iphone");
-    setAdminView(view);
-    setRequestedAdminView(view);
+  };
+
+  const showDesktop = () => {
+    const nextDesktopView = desktopShortcutViews[shortcutForMobileView(adminView)];
+    setDesktopView(nextDesktopView);
+    setDesktopCopy(desktopPageCopy[nextDesktopView]);
+    setDevice("macbook");
   };
 
   const handleMobileViewChange = useCallback((view: AdminDemoView) => {
@@ -548,8 +615,8 @@ export function LiveDemo() {
         className="live-demo-shortcut"
         type="button"
         key={view}
-        aria-pressed={device === "iphone" && adminView === view}
-        onClick={() => openMobileView(view)}
+        aria-pressed={(device === "iphone" ? shortcutForMobileView(adminView) : shortcutForDesktopView(desktopView)) === view}
+        onClick={() => openDemoView(view)}
       >
         <span className="live-demo-shortcut__icon"><Icon aria-hidden="true" /></span>
         <span>{label}</span>
@@ -576,23 +643,23 @@ export function LiveDemo() {
         </header>
 
         <div className="live-demo-shortcuts live-demo-shortcuts--rail" aria-label="Explorar funciones del demo">
-          {renderShortcuts(heroShortcuts.slice(0, 2))}
-          <span className="live-demo-shortcuts__phone-space" aria-hidden="true" />
-          {renderShortcuts(heroShortcuts.slice(2))}
+            {renderShortcuts(heroShortcuts.slice(0, 3))}
+            <span className="live-demo-shortcuts__phone-space" aria-hidden="true" />
+            {renderShortcuts(heroShortcuts.slice(3))}
         </div>
 
         <div className="live-demo-center">
-          <div className="live-demo-copy live-demo-copy--mobile" aria-live="polite">
-            <p className="live-demo-caption__eyebrow">{displayedMobile.label}</p>
-            <p className="live-demo-caption__text">{displayedMobile.description}</p>
+          <div className="live-demo-copy live-demo-context" aria-live="polite">
+            <p className="live-demo-caption__eyebrow">{displayedContext.label}</p>
+            <p className="live-demo-caption__text">{displayedContext.description}</p>
           </div>
 
           <div className="live-demo-controls" role="group" aria-label="Cambiar dispositivo del demo">
             <div className="live-demo-toggle live-demo-toggle--device" role="group" aria-label="Dispositivo">
-              <button type="button" aria-pressed={device === "iphone"} onClick={() => setDevice("iphone")}>
+              <button type="button" aria-pressed={device === "iphone"} onClick={showPhone}>
                 Teléfono
               </button>
-              <button type="button" aria-pressed={device === "macbook"} onClick={() => setDevice("macbook")}>
+              <button type="button" aria-pressed={device === "macbook"} onClick={showDesktop}>
                 Computadora
               </button>
             </div>
@@ -612,7 +679,7 @@ export function LiveDemo() {
                     <div className="live-demo-notch" aria-hidden="true" />
                   </>
                 ) : (
-                  <AdminDesktopDemoFrame />
+                  <AdminDesktopDemoFrame requestedView={desktopView} />
                 )}
               </div>
               {device === "iphone" ? <div className="live-demo-glare" aria-hidden="true" /> : null}

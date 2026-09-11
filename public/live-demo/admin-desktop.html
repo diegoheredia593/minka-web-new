@@ -910,6 +910,18 @@
           if (requested && screens[requested]) setScreen(requested, false);
         });
 
+        window.addEventListener("message", (event) => {
+          if (event.origin !== window.location.origin) return;
+          const payload = event.data;
+          if (
+            !payload ||
+            payload.type !== "minka-desktop-demo:navigate" ||
+            typeof payload.view !== "string" ||
+            !screens[payload.view]
+          ) return;
+          setScreen(payload.view);
+        });
+
         Object.values(screens).forEach((screen) => {
           const image = new Image();
           image.src = `${ASSET_ROOT}${screen.image}`;
