@@ -532,10 +532,6 @@ export function LiveDemo() {
     desktopPageCopy[DEFAULT_DESKTOP_VIEW],
   );
   const dynamicAdminCopy = device === "iphone" ? adminPageCopy[adminView] : desktopCopy;
-  const displayedContext = {
-    label: dynamicAdminCopy.left.label,
-    description: `${dynamicAdminCopy.left.description} ${dynamicAdminCopy.right.description}`,
-  };
 
   useEffect(() => {
     const enforcePhoneOnSmallScreens = () => {
@@ -648,12 +644,12 @@ export function LiveDemo() {
             {renderShortcuts(heroShortcuts.slice(3))}
         </div>
 
-        <div className="live-demo-center">
-          <div className="live-demo-copy live-demo-context" aria-live="polite">
-            <p className="live-demo-caption__eyebrow">{displayedContext.label}</p>
-            <p className="live-demo-caption__text">{displayedContext.description}</p>
-          </div>
+        <div className="live-demo-copy live-demo-copy--left" aria-live="polite">
+          <p className="live-demo-caption__eyebrow">{dynamicAdminCopy.left.label}</p>
+          <p className="live-demo-caption__text">{dynamicAdminCopy.left.description}</p>
+        </div>
 
+        <div className="live-demo-center">
           <div className="live-demo-controls" role="group" aria-label="Cambiar dispositivo del demo">
             <div className="live-demo-toggle live-demo-toggle--device" role="group" aria-label="Dispositivo">
               <button type="button" aria-pressed={device === "iphone"} onClick={showPhone}>
@@ -685,6 +681,11 @@ export function LiveDemo() {
               {device === "iphone" ? <div className="live-demo-glare" aria-hidden="true" /> : null}
             </div>
           </div>
+        </div>
+
+        <div className="live-demo-copy live-demo-copy--right" aria-live="polite">
+          <p className="live-demo-caption__eyebrow">{dynamicAdminCopy.right.label}</p>
+          <p className="live-demo-caption__text">{dynamicAdminCopy.right.description}</p>
         </div>
       </div>
     </section>
