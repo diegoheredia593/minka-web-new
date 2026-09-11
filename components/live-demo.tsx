@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowDown, Building2, CircleDollarSign, ClipboardCheck, UsersRound } from "lucide-react";
 
-import { SectionIntro } from "@/components/section-intro";
 import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { MacbookPro } from "@/components/ui/macbook-pro";
 import { AdminMobileDemo, type AdminDemoView } from "@/components/admin-mobile-demo";
@@ -17,6 +17,17 @@ type PageCopy = {
 // Drop the navigable desktop admin HTML in /public/live-demo/admin-desktop.html.
 const ADMIN_DESKTOP_DEMO_SRC = "/live-demo/admin-desktop.html";
 const MOBILE_BREAKPOINT = 980;
+
+const heroShortcuts: Array<{
+  label: string;
+  view: AdminDemoView;
+  icon: typeof CircleDollarSign;
+}> = [
+  { label: "Pagos y cobranza", view: "cobranza", icon: CircleDollarSign },
+  { label: "Residentes al día", view: "residentes", icon: UsersRound },
+  { label: "Solicitudes resueltas", view: "solicitudes", icon: ClipboardCheck },
+  { label: "Comunidad en orden", view: "comunidad", icon: Building2 },
+];
 
 const adminPageCopy: Record<AdminDemoView, PageCopy> = {
   dashboard: {
@@ -468,8 +479,9 @@ function AdminDesktopDemoFrame() {
 }
 
 export function LiveDemo() {
-  const [device, setDevice] = useState<Device>("macbook");
+  const [device, setDevice] = useState<Device>("iphone");
   const [adminView, setAdminView] = useState<AdminDemoView>("dashboard");
+  const [requestedAdminView, setRequestedAdminView] = useState<AdminDemoView>();
   const [desktopCopy, setDesktopCopy] = useState<PageCopy>(
     desktopPageCopy[DEFAULT_DESKTOP_VIEW],
   );
@@ -519,19 +531,54 @@ export function LiveDemo() {
     };
   }, []);
 
+  const openMobileView = (view: AdminDemoView) => {
+    setDevice("iphone");
+    setAdminView(view);
+    setRequestedAdminView(view);
+  };
+
+  const handleMobileViewChange = useCallback((view: AdminDemoView) => {
+    setAdminView(view);
+    setRequestedAdminView(undefined);
+  }, []);
+
+  const renderShortcuts = (items: typeof heroShortcuts) =>
+    items.map(({ label, view, icon: Icon }) => (
+      <button
+        className="live-demo-shortcut"
+        type="button"
+        key={view}
+        aria-pressed={device === "iphone" && adminView === view}
+        onClick={() => openMobileView(view)}
+      >
+        <span className="live-demo-shortcut__icon"><Icon aria-hidden="true" /></span>
+        <span>{label}</span>
+      </button>
+    ));
+
   return (
     <section id="live-demo" className="live-demo-section" aria-labelledby="live-demo-title">
-      <div className="section-shell live-demo-layout">
-        <SectionIntro
-          id="live-demo-title"
-          eyebrow="Live Demo"
-          title="Así se ve Minka por dentro."
-          text="Recorre la administración en computadora y cambia a teléfono para revisar la experiencia móvil."
-        />
+      <div className="live-demo-landscape" aria-hidden="true">
+        <svg viewBox="0 0 1600 420" preserveAspectRatio="none">
+          <path d="M0 330h130l34-40 33 40h94l48-69 48 69h140l32-34 32 34h160l51-76 52 76h126l39-49 40 49h211" />
+          <path d="M45 330v-64l39-30 39 30v64m-58 0v-39h38v39m196 0v-91l49-37 49 37v91m-71 0v-48h44v48m225 0v-58l36-28 37 28v58m-55 0v-34h31v34m182 0v-102l55-42 55 42v102m-79 0v-52h47v52m215 0v-73l43-33 43 33v73m-63 0v-41h39v41" />
+          <path d="M148 330v-73m-25 16 25-31 26 31m-26 16-33-35m33 35 34-35m288 76v-79m-27 17 27-35 28 35m-28 16-37-39m37 39 37-39m373 95v-78m-27 17 27-35 28 35m-28 16-37-39m37 39 37-39m322 95v-72m-25 15 25-31 26 31m-26 15-33-35m33 35 34-35" />
+          <path d="M0 331h1600M0 365c235-22 390 22 610 0s391 23 602 0 272 3 388-9" />
+        </svg>
+      </div>
 
-        <div className="live-demo-copy live-demo-copy--left" data-reveal aria-live="polite">
-          <p className="live-demo-caption__eyebrow">{dynamicAdminCopy.left.label}</p>
-          <p className="live-demo-caption__text">{dynamicAdminCopy.left.description}</p>
+      <div className="section-shell live-demo-layout" data-device={device}>
+        <header className="live-demo-intro">
+          <p className="live-demo-intro__eyebrow">Minka en acción</p>
+          <h1 id="live-demo-title">Administra tu comunidad sin caos</h1>
+          <button className="live-demo-see-how" type="button" onClick={() => document.querySelector(".live-demo-device")?.scrollIntoView({ behavior: "smooth", block: "center" })}>
+            Mira cómo
+            <ArrowDown aria-hidden="true" />
+          </button>
+        </header>
+
+        <div className="live-demo-shortcuts live-demo-shortcuts--left" data-reveal>
+          {renderShortcuts(heroShortcuts.slice(0, 2))}
         </div>
 
         <div className="live-demo-center">
@@ -561,20 +608,20 @@ export function LiveDemo() {
               <div className="live-demo-screen">
                 {device === "iphone" ? (
                   <>
-                    <AdminMobileDemo onViewChange={setAdminView} />
+                    <AdminMobileDemo requestedView={requestedAdminView} onViewChange={handleMobileViewChange} />
                     <div className="live-demo-notch" aria-hidden="true" />
                   </>
                 ) : (
                   <AdminDesktopDemoFrame />
                 )}
               </div>
+              {device === "iphone" ? <div className="live-demo-glare" aria-hidden="true" /> : null}
             </div>
           </div>
         </div>
 
-        <div className="live-demo-copy live-demo-copy--right" data-reveal aria-live="polite">
-          <p className="live-demo-caption__eyebrow">{dynamicAdminCopy.right.label}</p>
-          <p className="live-demo-caption__text">{dynamicAdminCopy.right.description}</p>
+        <div className="live-demo-shortcuts live-demo-shortcuts--right" data-reveal>
+          {renderShortcuts(heroShortcuts.slice(2))}
         </div>
       </div>
     </section>

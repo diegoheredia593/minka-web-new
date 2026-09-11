@@ -238,7 +238,13 @@ function DemoModal({ kind, close, fallback }: { kind: "alicuota" | "extraordinar
   return <div className="amd-modal-backdrop" role="presentation"><section className="amd-modal" role="dialog" aria-modal="true" aria-label={kind === "alicuota" ? "Generar alícuotas" : kind === "extraordinaria" ? "Cuota extraordinaria" : "Nueva cuenta bancaria"}><header><h4>{kind === "alicuota" ? "Generar alícuotas — Agosto 2026" : kind === "extraordinaria" ? "Cuota extraordinaria" : "Nueva cuenta bancaria"}</h4><button type="button" onClick={close}><X /></button></header>{kind === "alicuota" ? <div className="amd-modal-copy"><strong>Resumen</strong><b>7 unidades activas</b><b>Valor predeterminado: $85.00</b><b>Recaudación esperada (aprox.): $595.00</b><p>Las unidades con un valor personalizado usarán ese valor en lugar del predeterminado.</p></div> : <div className="amd-modal-fields">{(kind === "cuenta" ? [["Banco *", "Ej. Banco Pichincha"], ["Titular de la cuenta *", "Ej. Minka Los Jardines S.A."], ["Tipo de cuenta *", "Ej. Cuenta corriente"], ["Número de cuenta *", ""], ["RUC / Identificación (opcional)", ""]] : [["Descripción *", "Ej. Reparación piscina"], ["Monto por unidad *", "0.00"], ["Fecha de vencimiento *", "AAAA-MM-DD"]]).map(f => <label key={f[0]}>{f[0]}<input placeholder={f[1]} /></label>)}{kind === "extraordinaria" ? <div className="amd-preview"><strong>Vista previa</strong><b>7 unidades activas</b><b>Total: $0.00</b></div> : null}</div>}<footer><DemoButton tone="plain" onClick={close}>Cancelar</DemoButton><DemoButton onClick={fallback}>{kind === "cuenta" ? "Crear cuenta" : kind === "alicuota" ? "Generar" : "Confirmar"}</DemoButton></footer></section></div>;
 }
 
-export function AdminMobileDemo({ onViewChange }: { onViewChange?: (view: AdminDemoView) => void }) {
+export function AdminMobileDemo({
+  onViewChange,
+  requestedView,
+}: {
+  onViewChange?: (view: AdminDemoView) => void;
+  requestedView?: AdminDemoView;
+}) {
   const [view, setView] = useState<View>("dashboard");
   const [modal, setModal] = useState<"alicuota" | "extraordinaria" | "cuenta" | null>(null);
   const [toast, setToast] = useState(false);
@@ -248,6 +254,12 @@ export function AdminMobileDemo({ onViewChange }: { onViewChange?: (view: AdminD
   const navigate = (next: View) => { setView(next); setModal(null); scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); };
   const fallback = () => setToast(true);
   useEffect(() => { if (!toast) return; const timer = window.setTimeout(() => setToast(false), 2600); return () => window.clearTimeout(timer); }, [toast]);
+  useEffect(() => {
+    if (!requestedView || requestedView === view) return;
+    setView(requestedView);
+    setModal(null);
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [requestedView, view]);
   useEffect(() => { onViewChange?.(view); }, [onViewChange, view]);
   const moveCursor = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "mouse") return;
