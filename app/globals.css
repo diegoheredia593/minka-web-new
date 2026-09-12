@@ -2465,42 +2465,177 @@ section[id] {
   }
 
   .live-demo-section {
-    --live-demo-split: 47%;
-    padding-top: 2.5rem;
+    min-height: calc(100svh - 66px);
+    padding: 0;
+    background: #fffaf2;
+  }
+
+  .live-demo-section::before {
+    inset: 0;
+    opacity: 0.5;
+    background-size: 9rem 9rem;
+  }
+
+  .live-demo-landscape {
+    display: none;
   }
 
   .live-demo-layout {
-    width: calc(100% - 1.5rem);
+    width: 100%;
+    min-height: calc(100svh - 66px);
+    grid-template-columns: minmax(6.9rem, 7.8rem) minmax(0, 1fr);
+    grid-template-areas:
+      "intro intro"
+      "shortcuts center";
+    align-items: start;
+    row-gap: 0.75rem;
+    column-gap: 0;
+    overflow: hidden;
+  }
+
+  .live-demo-intro {
+    justify-self: stretch;
+    padding: 5rem 1.75rem 0;
+    text-align: left;
+  }
+
+  .live-demo-intro__eyebrow,
+  .live-demo-intro__text {
+    display: none;
   }
 
   .live-demo-intro h1 {
     max-width: 11ch;
-    font-size: clamp(2.9rem, 14vw, 4.2rem);
+    margin: 0;
+    font-size: clamp(2.55rem, 11vw, 3.55rem);
+    line-height: 1.08;
+    letter-spacing: -0.06em;
   }
 
-  .live-demo-shortcut {
-    min-height: 3.8rem;
-    padding: 0.55rem 0.65rem;
-    font-size: 0.75rem;
-    background: rgba(255, 250, 242, 0.94);
+  .live-demo-see-how {
+    align-items: flex-start;
+    margin: 1rem 0 0;
+    padding: 0;
+    color: rgba(23, 35, 31, 0.7);
+    font-size: 1.45rem;
+    font-weight: 680;
   }
 
-  .live-demo-shortcuts--rail {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .live-demo-see-how svg {
+    width: 2.8rem;
+    height: 2.8rem;
+    stroke-width: 1.45;
   }
 
-  .live-demo-shortcut__icon {
-    width: 1.85rem;
-    height: 1.85rem;
+  .live-demo-center {
+    align-self: start;
+    justify-items: start;
+    gap: 0;
+    min-width: 0;
+    margin-left: -0.35rem;
+    overflow: visible;
   }
 
+  .live-demo-controls,
+  .live-demo-copy--left,
+  .live-demo-copy--right,
   .live-demo-copy--mobile {
-    color: var(--ink);
-    background: rgba(255, 250, 242, 0.92);
+    display: none;
+  }
+
+  .live-demo-device {
+    justify-content: flex-start;
+    justify-self: start;
+    width: min(88vw, 360px);
+    margin-top: -0.15rem;
+    overflow: visible;
   }
 
   .live-demo-device__frame--iphone {
-    max-width: min(390px, 94vw);
+    width: min(82vw, 350px);
+    max-width: none;
+    transform: translateX(-0.15rem) rotate(3.5deg);
+    transform-origin: 58% 100%;
+    filter: drop-shadow(0 28px 30px rgba(3, 22, 18, 0.24)) drop-shadow(0 8px 7px rgba(3, 22, 18, 0.15));
+  }
+
+  .live-demo-shortcut {
+    place-items: start;
+    grid-template-columns: 1fr;
+    width: 6.8rem;
+    min-height: 0;
+    padding: 0.25rem 0.25rem 0.25rem 0.95rem;
+    border: 0;
+    border-radius: 0;
+    color: rgba(23, 35, 31, 0.62);
+    font-size: 0.73rem;
+    font-weight: 650;
+    text-align: left;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    overflow: visible;
+  }
+
+  .live-demo-shortcut::before {
+    position: absolute;
+    top: 0.1rem;
+    bottom: 0.1rem;
+    left: 0;
+    width: 2px;
+    border-radius: 999px;
+    content: "";
+    background: transparent;
+  }
+
+  .live-demo-shortcut:hover,
+  .live-demo-shortcut:focus-visible {
+    transform: none;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .live-demo-shortcut[aria-pressed="true"] {
+    color: var(--ink);
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .live-demo-shortcut[aria-pressed="true"]::before {
+    background: var(--pine);
+  }
+
+  .live-demo-shortcut > span:last-child {
+    max-width: 5.9rem;
+    white-space: normal;
+  }
+
+  .live-demo-shortcuts--rail {
+    z-index: 8;
+    justify-self: start;
+    width: auto;
+    grid-template-columns: 1fr;
+    gap: 1.05rem;
+    padding: 0.85rem 0 0 1rem;
+  }
+
+  .live-demo-shortcut__icon {
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 0.1rem;
+    border-radius: 0.65rem;
+    color: currentColor;
+    background: transparent;
+  }
+
+  .live-demo-shortcut[aria-pressed="true"] .live-demo-shortcut__icon {
+    color: var(--pine);
+    background: rgba(36, 91, 79, 0.1);
+  }
+
+  .live-demo-shortcut__icon svg {
+    width: 1.24rem;
+    height: 1.24rem;
   }
 
   .site-footer__inner {
