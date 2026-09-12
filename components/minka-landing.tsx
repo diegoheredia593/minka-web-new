@@ -339,11 +339,6 @@ export function MinkaLanding() {
               <span className="onboarding-note" data-reveal>
                 Implementación guiada · sin instalaciones
               </span>
-              <div className="onboarding-motion" data-reveal aria-hidden="true">
-                <video autoPlay muted loop playsInline preload="metadata">
-                  <source src="/brand/minka-login-bg-720p.mp4" type="video/mp4" />
-                </video>
-              </div>
             </div>
             <div className="onboarding-steps">
               {onboardingSteps.map((step, index) => (
