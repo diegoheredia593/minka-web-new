@@ -5,13 +5,21 @@ import { Menu, X } from "lucide-react";
 
 import { FlowButton } from "@/components/ui/flow-button";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  href: string;
+  archived?: boolean;
+};
+
+const navItems: NavItem[] = [
   { label: "El problema", href: "/#problema-title" },
   { label: "Cómo funciona", href: "/#minka-title" },
   { label: "Live demo", href: "/#live-demo" },
   { label: "Onboarding", href: "/#piloto" },
-  { label: "Planes", href: "/planes" },
+  { label: "Planes", href: "/planes", archived: true },
 ];
+
+const visibleNavItems = navItems.filter((item) => !item.archived);
 
 /**
  * Shared site header/nav, used on the landing page and on standalone
@@ -49,7 +57,7 @@ export function SiteHeader() {
       </a>
 
       <nav aria-label="Secciones de Minka">
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <a key={item.href} href={item.href}>
             {item.label}
           </a>
@@ -80,7 +88,7 @@ export function SiteHeader() {
           className="mobile-nav animate-in fade-in slide-in-from-top-2 duration-200"
           aria-label="Secciones de Minka (móvil)"
         >
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <a key={item.href} href={item.href} onClick={() => setIsMenuOpen(false)}>
               {item.label}
             </a>

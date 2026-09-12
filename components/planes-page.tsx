@@ -59,7 +59,8 @@ export function PlanesPage() {
       <SiteHeader />
 
       <main>
-        <section className="pricing-section" aria-label="Planes de Minka">
+        {/* Archived for now: keep the pricing table ready to reactivate later. */}
+        <section className="pricing-section" aria-label="Planes de Minka" data-archived="true" hidden>
           <Pricing plans={pricingPlans} />
         </section>
 
