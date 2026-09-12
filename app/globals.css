@@ -2076,12 +2076,32 @@ section[id] {
 
 .demo-form {
   position: relative;
+  isolation: isolate;
   display: grid;
   gap: 1rem;
+  overflow: hidden;
   padding: 1rem;
   border: 1px solid rgba(255, 250, 242, 0.18);
   border-radius: 8px;
   background: rgba(255, 250, 242, 0.08);
+}
+
+.demo-form::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  background-image: url("/images/minka-demo-form-illustration.png");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: 150% auto;
+  opacity: 0.24;
+  pointer-events: none;
+}
+
+.demo-form > * {
+  position: relative;
+  z-index: 1;
 }
 
 .form-honeypot {
@@ -2711,5 +2731,10 @@ section[id] {
 
   .visual-placeholder__frame {
     min-height: 16rem;
+  }
+
+  .demo-form::before {
+    background-size: 230% auto;
+    opacity: 0.18;
   }
 }
