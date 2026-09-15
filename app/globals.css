@@ -2212,7 +2212,15 @@ section[id] {
   padding: 0.8rem 1rem;
   border-radius: 999px;
   color: var(--pine-dark);
+  text-decoration: none;
   background: #fffaf2;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.app-downloads__apk:hover,
+.app-downloads__apk:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 
 .app-downloads__apk svg {
@@ -2293,6 +2301,23 @@ section[id] {
 .site-footer nav a:hover,
 .site-footer nav a:focus-visible {
   color: var(--pine-dark);
+}
+
+.site-footer__credit {
+  color: rgba(23, 35, 31, 0.62);
+  font-size: 0.84rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-footer__credit strong {
+  color: var(--pine-dark);
+  font-weight: 760;
+}
+
+.site-footer__credit:hover strong,
+.site-footer__credit:focus-visible strong {
+  color: var(--clay);
 }
 
 .legal-page {

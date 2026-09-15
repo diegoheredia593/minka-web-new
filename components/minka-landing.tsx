@@ -455,10 +455,14 @@ export function MinkaLanding() {
                   </div>
                 </div>
               </div>
-              <div className="app-downloads__apk">
+              <a
+                className="app-downloads__apk"
+                href="https://github.com/diegoheredia593/minka-web-new/releases/download/apk-v1/Minka.apk"
+                download
+              >
                 <Smartphone aria-hidden="true" />
                 <span><small>¿Tienes Android?</small>Descárgala ahora en APK</span>
-              </div>
+              </a>
             </div>
           </div>
         </section>

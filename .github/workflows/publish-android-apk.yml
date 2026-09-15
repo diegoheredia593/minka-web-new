@@ -1,0 +1,34 @@
+name: Publish Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      drive_file_id:
+        description: Google Drive file ID for the public APK
+        required: true
+        default: 1xTLygciAvHlcloP4hVGAIGMqb3kzGvZA
+      release_tag:
+        description: Existing GitHub release tag
+        required: true
+        default: apk-v1
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download APK from Google Drive
+        env:
+          DRIVE_FILE_ID: ${{ inputs.drive_file_id }}
+        run: |
+          curl --fail --location --retry 3 \
+            "https://drive.usercontent.google.com/download?id=${DRIVE_FILE_ID}&export=download&confirm=t" \
+            --output Minka.apk
+          test "$(stat --format=%s Minka.apk)" -gt 100000000
+
+      - name: Upload APK to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ inputs.release_tag }}" Minka.apk --clobber

@@ -3,4 +3,5 @@ node_modules/
 .vinext/
 .wrangler/
 dist/
+.release-assets/
 *.log
