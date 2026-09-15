@@ -65,6 +65,9 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-actions">
+        <a className="header-login" href="https://appminka.com/login">
+          Iniciar sesión
+        </a>
         <FlowButton
           href="/#demo"
           text="Agenda una demo"
@@ -93,6 +96,13 @@ export function SiteHeader() {
               {item.label}
             </a>
           ))}
+          <a
+            className="mobile-nav__login"
+            href="https://appminka.com/login"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Iniciar sesión
+          </a>
           <FlowButton
             href="/#demo"
             text="Agenda una demo"
