@@ -358,15 +358,15 @@ export function MinkaLanding() {
         <section id="demo" className="demo-section">
           <div className="section-shell demo-layout">
             <div data-reveal>
-              <p className="eyebrow">Primeras comunidades piloto</p>
-              <h2>Descubre cómo se vería Minka en tu comunidad.</h2>
+              <p className="eyebrow">Oferta de lanzamiento</p>
+              <h2>Enlístate ahora y recibe 60 días gratis.</h2>
               <p>
-                Estamos abriendo los primeros pilotos con comunidades en Guayaquil y Ecuador. Si
-                administras una urbanización, condominio o edificio, queremos conversar contigo.
+                Conoce cómo Minka puede ayudarte a organizar tu comunidad. Déjanos tus datos y te
+                mostraremos la plataforma sin compromiso.
               </p>
               <div className="demo-proof">
                 <Building2 aria-hidden="true" />
-                <span>Cupos limitados para pilotos y demos iniciales.</span>
+                <span>Cupos limitados para las primeras comunidades.</span>
               </div>
             </div>
 
@@ -419,12 +419,12 @@ export function MinkaLanding() {
                 tone="light"
                 type="submit"
                 disabled={formStatus === "submitting"}
-                text={formStatus === "submitting" ? "Enviando..." : "Solicitar una demostración"}
+                text={formStatus === "submitting" ? "Enviando..." : "Quiero mis 60 días gratis"}
                 className="w-full justify-center"
               />
               <div className="form-status" role="status" aria-live="polite">
                 {formStatus === "success" ? (
-                  <p>Recibimos tu solicitud. Te contactaremos muy pronto.</p>
+                  <p>Ya estás en la lista. Te contactaremos muy pronto.</p>
                 ) : null}
                 {formStatus === "partial" ? (
                   <p>
