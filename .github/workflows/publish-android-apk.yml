@@ -31,4 +31,4 @@ jobs:
       - name: Upload APK to GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ inputs.release_tag }}" Minka.apk --clobber
+        run: gh release upload "${{ inputs.release_tag }}" Minka.apk --clobber --repo "${{ github.repository }}"
