@@ -2139,6 +2139,92 @@ section[id] {
   color: #ffc0ae;
 }
 
+.app-downloads {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding: 1.2rem;
+  border: 1px solid rgba(255, 250, 242, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 250, 242, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.app-downloads__intro {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.app-downloads .eyebrow {
+  margin: 0;
+}
+
+.app-downloads__stores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.app-store-badge,
+.app-downloads__apk {
+  display: flex;
+  align-items: center;
+}
+
+.app-store-badge {
+  min-width: 9.5rem;
+  gap: 0.65rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgba(255, 250, 242, 0.2);
+  border-radius: 8px;
+  color: #fffaf2;
+  background: rgba(8, 17, 14, 0.46);
+}
+
+.app-store-badge svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: 0 0 auto;
+}
+
+.app-store-badge span,
+.app-downloads__apk span {
+  display: grid;
+  gap: 0.08rem;
+  font-size: 0.92rem;
+  font-weight: 750;
+  line-height: 1.1;
+}
+
+.app-store-badge small,
+.app-downloads__apk small {
+  color: rgba(255, 250, 242, 0.6);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-downloads__apk {
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  color: var(--pine-dark);
+  background: #fffaf2;
+}
+
+.app-downloads__apk svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  flex: 0 0 auto;
+}
+
+.app-downloads__apk small {
+  color: rgba(23, 35, 31, 0.58);
+}
+
 .site-footer {
   padding: 2rem 0;
   border-top: 1px solid rgba(23, 35, 31, 0.1);
@@ -2666,6 +2752,27 @@ section[id] {
   .site-footer__inner {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .app-downloads {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .app-downloads__stores {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-store-badge {
+    min-width: 0;
+    padding-inline: 0.65rem;
+  }
+
+  .app-downloads__apk {
+    justify-content: center;
+    border-radius: 8px;
   }
 
   .site-footer nav {

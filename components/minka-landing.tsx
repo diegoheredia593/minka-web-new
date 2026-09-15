@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  Apple,
   ArrowRight,
   Building2,
   CalendarClock,
@@ -11,6 +12,7 @@ import {
   MapPinned,
   MessageCircle,
   ReceiptText,
+  Play,
   ShieldCheck,
   SlidersHorizontal,
   Smartphone,
@@ -438,6 +440,26 @@ export function MinkaLanding() {
                 ) : null}
               </div>
             </form>
+
+            <div className="app-downloads" data-reveal aria-labelledby="app-downloads-title">
+              <div className="app-downloads__intro">
+                <p className="eyebrow" id="app-downloads-title">Próximamente en tiendas</p>
+                <div className="app-downloads__stores" aria-label="Próximamente en Google Play y App Store">
+                  <div className="app-store-badge">
+                    <Play aria-hidden="true" />
+                    <span><small>Próximamente en</small>Google Play</span>
+                  </div>
+                  <div className="app-store-badge">
+                    <Apple aria-hidden="true" />
+                    <span><small>Próximamente en</small>App Store</span>
+                  </div>
+                </div>
+              </div>
+              <div className="app-downloads__apk">
+                <Smartphone aria-hidden="true" />
+                <span><small>¿Tienes Android?</small>Descárgala ahora en APK</span>
+              </div>
+            </div>
           </div>
         </section>
       </main>
