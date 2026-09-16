@@ -20,7 +20,12 @@ export function SiteFooter() {
             </a>
           ))}
         </nav>
-        <a className="site-footer__credit" href="https://bebrand.dev" target="_blank" rel="noreferrer">
+        <a
+          className="site-footer__credit"
+          href="https://bebrand-dev.herediadiego963.workers.dev/"
+          target="_blank"
+          rel="noreferrer"
+        >
           Desarrollado por <strong>bebrand.dev</strong>
         </a>
       </div>
