@@ -27,6 +27,7 @@ import { SectionIntro } from "@/components/section-intro";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Textarea } from "@/components/ui/textarea";
+import { trackEvent } from "@/lib/analytics";
 
 const problemItems = [
   {
@@ -170,6 +171,7 @@ export function MinkaLanding() {
       }
 
       form.reset();
+      trackEvent("generate_lead", { form_name: "demo_request" });
       setFormStatus(result.mode === "partial" ? "partial" : "success");
     } catch {
       setFormStatus("error");
@@ -459,6 +461,7 @@ export function MinkaLanding() {
                 className="app-downloads__apk"
                 href="https://github.com/diegoheredia593/minka-web-new/releases/download/apk-v1/Minka.apk"
                 download
+                onClick={() => trackEvent("file_download", { file_name: "Minka.apk", file_extension: "apk" })}
               >
                 <Smartphone aria-hidden="true" />
                 <span><small>¿Tienes Android?</small>Descárgala ahora en APK</span>

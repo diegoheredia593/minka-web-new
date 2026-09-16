@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import { FlowButton } from "@/components/ui/flow-button";
+import { trackEvent } from "@/lib/analytics";
 
 type NavItem = {
   label: string;
@@ -65,7 +66,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="header-actions">
-        <a className="header-login" href="https://appminka.com/login">
+        <a className="header-login" href="https://appminka.com/login" onClick={() => trackEvent("login_click")}>
           Iniciar sesión
         </a>
         <FlowButton
@@ -99,7 +100,10 @@ export function SiteHeader() {
           <a
             className="mobile-nav__login"
             href="https://appminka.com/login"
-            onClick={() => setIsMenuOpen(false)}
+            onClick={() => {
+              trackEvent("login_click");
+              setIsMenuOpen(false);
+            }}
           >
             Iniciar sesión
           </a>

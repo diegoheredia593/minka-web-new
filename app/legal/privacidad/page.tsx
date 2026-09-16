@@ -6,6 +6,7 @@ import { privacyDocument } from "@/content/legal-documents";
 export const metadata: Metadata = {
   title: "Política de Privacidad - Minka",
   description: "Política de Privacidad de Minka.",
+  alternates: { canonical: "/legal/privacidad" },
   robots: {
     index: false,
     follow: false,

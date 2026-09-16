@@ -5,6 +5,7 @@ import { PlanesPage } from '@/components/planes-page';
 export const metadata: Metadata = {
   title: 'Planes - Minka',
   description: 'Planes pensados para cada comunidad residencial en Ecuador.',
+  alternates: { canonical: '/planes' },
 };
 
 export default function Planes() {
