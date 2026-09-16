@@ -279,10 +279,11 @@ export function MinkaLanding() {
           <div className="section-shell definition-grid">
             <div className="definition-copy" data-reveal>
               <p className="eyebrow">Qué es</p>
-              <h2 id="minka-title">El sistema operativo de tu comunidad.</h2>
+              <h2 id="minka-title">El software para administrar tu comunidad.</h2>
               <p>
-                Minka conecta lo que hace la administración con lo que necesitan los residentes:
-                pagos, reservas, comunicados, accesos, unidades, personal y más.
+                Minka ayuda a administrar urbanizaciones, condominios y edificios en Ecuador. Conecta
+                la operación diaria con lo que necesitan los residentes: pagos, reservas, comunicados,
+                accesos, unidades, personal y más.
               </p>
               <div className="definition-signal" aria-label="Minka conecta administración, residentes y comunidad">
                 <span>Admin</span>
@@ -365,8 +366,8 @@ export function MinkaLanding() {
               <p className="eyebrow">Oferta de lanzamiento</p>
               <h2>Enlístate ahora y recibe 60 días gratis.</h2>
               <p>
-                Conoce cómo Minka puede ayudarte a organizar tu comunidad. Déjanos tus datos y te
-                mostraremos la plataforma sin compromiso.
+                Cuéntanos la capacidad y las necesidades de tu urbanización, condominio o edificio.
+                Te mostraremos cómo Minka se adapta a tu operación, sin compromiso.
               </p>
               <div className="demo-proof">
                 <Building2 aria-hidden="true" />

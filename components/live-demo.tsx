@@ -628,9 +628,10 @@ export function LiveDemo() {
       <div className="section-shell live-demo-layout" data-device={device}>
         <header className="live-demo-intro">
           <p className="live-demo-intro__eyebrow">Minka en acción</p>
-          <h1 id="live-demo-title">Administra tu comunidad sin caos</h1>
+          <h1 id="live-demo-title">Administra tu urbanización sin caos</h1>
           <p className="live-demo-intro__text">
-            Centraliza pagos, residentes, solicitudes y comunicación en un solo lugar. Explora el demo y descubre cómo funciona Minka en tu comunidad.
+            El software para urbanizaciones, condominios y edificios que centraliza pagos, residentes,
+            solicitudes y comunicación. Explora el demo y descubre cómo funciona Minka en tu comunidad.
           </p>
           <button className="live-demo-see-how" type="button" onClick={() => document.querySelector(".live-demo-device")?.scrollIntoView({ behavior: "smooth", block: "center" })}>
             Mira cómo

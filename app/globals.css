@@ -2448,7 +2448,10 @@ section[id] {
     display: inline-flex;
   }
 
-  .mobile-nav {
+  /* This selector deliberately matches the header rule above. Without the
+     .site-header prefix, `.site-header nav { display: none }` wins and the
+     mobile menu stays invisible even when React renders it. */
+  .site-header .mobile-nav {
     position: fixed;
     left: 0;
     right: 0;
@@ -2569,7 +2572,7 @@ section[id] {
     display: none;
   }
 
-  .mobile-nav {
+  .site-header .mobile-nav {
     top: 66px;
   }
 

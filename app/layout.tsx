@@ -19,7 +19,7 @@ const structuredData = {
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web, Android',
       url: 'https://appminka.com',
-      description: 'Administración de residentes, reservas, cobranzas y comunicación para comunidades residenciales.',
+      description: 'Software para administrar urbanizaciones, condominios y edificios en Ecuador: residentes, reservas, cobranzas y comunicación.',
     },
   ],
 };
@@ -37,12 +37,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://appminka.com'),
   title: {
-    default: 'Minka - Tu comunidad, mejor organizada',
+    default: 'Minka | Software para administrar urbanizaciones en Ecuador',
     template: '%s | Minka',
   },
   description:
-    'Minka administra residentes, reservas, cobranzas y comunicación para comunidades residenciales en Ecuador.',
-  keywords: ['administración de condominios', 'urbanizaciones', 'reservas', 'cobranzas', 'comunidades residenciales', 'Ecuador'],
+    'Software para administrar urbanizaciones, condominios y edificios en Ecuador. Centraliza residentes, reservas, cobranzas y comunicación.',
+  keywords: ['software para urbanizaciones', 'administración de urbanizaciones', 'administración de condominios', 'software para condominios', 'administración de edificios', 'reservas', 'cobranzas', 'comunidades residenciales', 'Ecuador'],
   alternates: {
     canonical: '/',
   },
@@ -51,13 +51,13 @@ export const metadata: Metadata = {
     locale: 'es_EC',
     url: '/',
     siteName: 'Minka',
-    title: 'Minka - Tu comunidad, mejor organizada',
-    description: 'Administración clara para residentes, reservas, cobranzas y comunicación.',
+    title: 'Minka | Administra tu urbanización sin caos',
+    description: 'Software para urbanizaciones, condominios y edificios en Ecuador.',
   },
   twitter: {
     card: 'summary',
-    title: 'Minka - Tu comunidad, mejor organizada',
-    description: 'Administración clara para comunidades residenciales en Ecuador.',
+    title: 'Minka | Administra tu urbanización sin caos',
+    description: 'Software para comunidades residenciales en Ecuador.',
   },
   icons: {
     icon: '/brand/minka-icon.svg',
