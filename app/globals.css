@@ -1589,6 +1589,11 @@ section[id] {
   max-width: 1020px;
 }
 
+.live-demo-device__frame--samsung {
+  max-width: 420px;
+  filter: drop-shadow(0 34px 28px rgba(3, 22, 18, 0.26)) drop-shadow(0 9px 8px rgba(3, 22, 18, 0.16));
+}
+
 .live-demo-device__svg {
   display: block;
   width: 100%;
@@ -1642,6 +1647,22 @@ section[id] {
   transform: translateY(-50%);
 }
 
+/* Samsung Galaxy S25 Ultra punch-hole camera. Nested inside .live-demo-screen
+   like .live-demo-notch, so it stays visible above the resident screen and
+   its percentages track the screen box rather than the whole frame. */
+.live-demo-punch-hole {
+  position: absolute;
+  top: 1.7%;
+  left: 50%;
+  width: 5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, 0);
+  background: radial-gradient(circle at 34% 32%, #3a3a3d 0 15%, #111 55%, #000 78%);
+  box-shadow: inset 0 0 2px #000, 0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 4;
+}
+
 .live-demo-glare {
   position: absolute;
   z-index: 5;
@@ -1663,6 +1684,22 @@ section[id] {
   top: 3.2%;
   width: 86%;
   height: 93.59%;
+}
+
+.live-demo-device__frame--samsung .live-demo-screen {
+  left: 4.455%;
+  top: 2.143%;
+  width: 91.089%;
+  height: 95.714%;
+  border-radius: 10.6% / 5.1%;
+}
+
+.live-demo-device__frame--samsung .live-demo-glare {
+  top: 2.143%;
+  left: 4.455%;
+  width: 91.089%;
+  height: 95.714%;
+  border-radius: 10.6% / 5.1%;
 }
 
 /* Navigable admin mobile demo. The 390 × 844 canvas mirrors the supplied
@@ -1919,6 +1956,106 @@ section[id] {
   transition: opacity .12s ease, transform .12s ease;
 }
 .amd-cursor[data-visible="true"] { opacity: 1; transform: scale(1); }
+
+/* =====================================================================
+   Resident mobile demo (rmd-*). Same 390 x 844-style canvas approach as the
+   admin demo (amd-*), with a palette read off the supplied resident capture:
+   warm cream paper, a terracotta emergency card, burnt-orange headings/CTAs,
+   tan quick-action tiles, white cards and soft green availability pills.
+   ===================================================================== */
+.rmd-app {
+  --rmd-ink: #241f19;
+  --rmd-muted: #8c8071;
+  --rmd-paper: #f6efe1;
+  --rmd-card: #ffffff;
+  --rmd-line: #ece1cd;
+  --rmd-clay: #c1590f;
+  --rmd-clay-soft: #efe0c8;
+  --rmd-terracotta-start: #c85a34;
+  --rmd-terracotta-end: #a8431f;
+  --rmd-green: #1f8a5f;
+  --rmd-green-soft: #e2f2e9;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 67px;
+  overflow: hidden;
+  color: var(--rmd-ink);
+  background: var(--rmd-paper);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  text-align: left;
+}
+.rmd-app *, .rmd-app *::before, .rmd-app *::after { box-sizing: border-box; }
+.rmd-app button { font: inherit; color: inherit; cursor: pointer; appearance: none; -webkit-appearance: none; }
+
+.rmd-scroll { position: relative; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; scroll-behavior: smooth; }
+.rmd-scroll::-webkit-scrollbar { display: none; }
+.rmd-page { display: grid; gap: 14px; padding: 34px 14px 24px; }
+
+.rmd-greeting { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; }
+.rmd-greeting__avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--rmd-clay-soft); color: var(--rmd-clay); font-size: 13px; font-weight: 800; }
+.rmd-greeting__text h3 { margin: 0 0 3px; font-size: 16px; font-weight: 800; line-height: 1.1; }
+.rmd-greeting__unit { display: inline-flex; align-items: center; gap: 4px; color: var(--rmd-muted); font-size: 9.5px; font-weight: 600; }
+.rmd-greeting__unit svg { width: 10px; height: 10px; }
+.rmd-bell { position: relative; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; background: transparent; }
+.rmd-bell svg { width: 16px; height: 16px; color: var(--rmd-ink); }
+.rmd-bell__badge { position: absolute; top: -2px; right: -2px; padding: 1px 4px; border-radius: 999px; background: var(--rmd-terracotta-end); color: #fff; font-size: 7px; font-weight: 800; }
+
+.rmd-emergency { display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; column-gap: 11px; row-gap: 6px; width: 100%; padding: 13px 14px; border: 0; border-radius: 16px; background: linear-gradient(135deg, var(--rmd-terracotta-start), var(--rmd-terracotta-end)); box-shadow: 0 10px 22px rgba(150, 66, 33, 0.28); text-align: left; }
+.rmd-emergency__icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); color: #fff; }
+.rmd-emergency__icon svg { width: 17px; height: 17px; }
+.rmd-emergency__copy { display: grid; gap: 2px; color: #fff; }
+.rmd-emergency__copy strong { font-size: 14.5px; font-weight: 800; }
+.rmd-emergency__copy em { font-style: normal; font-size: 10px; font-weight: 600; opacity: 0.92; }
+.rmd-emergency__dots { grid-column: 1 / -1; display: flex; gap: 5px; }
+.rmd-emergency__dots i { flex: 1; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.32); }
+.rmd-emergency__dots i[data-filled="true"] { background: #fff; }
+.rmd-emergency__hint { margin: -6px 2px 0; color: var(--rmd-muted); font-size: 9.5px; }
+
+.rmd-account { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--rmd-line); border-radius: 16px; background: var(--rmd-card); box-shadow: 0 8px 20px rgba(54, 42, 31, 0.05); }
+.rmd-account__top { display: flex; align-items: center; justify-content: space-between; }
+.rmd-account__label { display: inline-flex; align-items: center; gap: 5px; color: var(--rmd-muted); font-size: 9px; font-weight: 800; letter-spacing: 0.03em; }
+.rmd-account__label svg { width: 12px; height: 12px; }
+.rmd-pill { display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 999px; font-size: 9px; font-weight: 800; }
+.rmd-pill--green { color: var(--rmd-green); background: var(--rmd-green-soft); }
+.rmd-pill--muted { color: var(--rmd-muted); background: var(--rmd-clay-soft); }
+.rmd-account__headline { margin: 0; color: var(--rmd-clay); font-size: 25px; font-weight: 800; }
+.rmd-account__cta { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; padding: 11px; border: 0; border-radius: 12px; background: var(--rmd-clay-soft); color: var(--rmd-clay); font-size: 11px; font-weight: 800; }
+.rmd-account__cta svg { width: 13px; height: 13px; }
+
+.rmd-quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.rmd-quick { display: grid; justify-items: center; gap: 7px; padding: 12px 4px; border: 0; border-radius: 14px; background: var(--rmd-clay-soft); text-align: center; }
+.rmd-quick__icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--rmd-card); color: var(--rmd-clay); }
+.rmd-quick__icon svg { width: 15px; height: 15px; }
+.rmd-quick span:last-child { font-size: 9px; font-weight: 700; }
+
+.rmd-section-row { display: flex; align-items: center; justify-content: space-between; }
+.rmd-section-row h4 { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12.5px; font-weight: 800; }
+.rmd-section-row h4 svg { width: 13px; height: 13px; color: var(--rmd-ink); }
+.rmd-section-row > button { padding: 0; border: 0; background: transparent; color: var(--rmd-clay); font-size: 10px; font-weight: 800; }
+
+.rmd-stack { display: grid; gap: 8px; }
+.rmd-card { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; width: 100%; padding: 10px; border: 1px solid var(--rmd-line); border-radius: 13px; background: var(--rmd-card); box-shadow: 0 6px 14px rgba(54, 42, 31, 0.04); text-align: left; }
+.rmd-card__icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--rmd-clay-soft); font-size: 15px; }
+.rmd-card__body { display: grid; gap: 2px; min-width: 0; }
+.rmd-card__body strong { font-size: 11px; font-weight: 800; }
+.rmd-card__body em { font-style: normal; color: var(--rmd-muted); font-size: 9px; }
+
+.rmd-bottom-nav { position: relative; z-index: 5; display: flex; align-items: center; margin: 6px 8px 10px; padding: 4px; border: 1px solid rgba(190, 178, 164, .54); border-radius: 999px; background: rgba(255, 254, 251, .99); box-shadow: 0 5px 10px rgba(45, 35, 27, .18), inset 0 1px 0 #fff; backdrop-filter: blur(14px); }
+.rmd-bottom-nav::before { content: ""; position: absolute; left: -8px; right: -8px; bottom: -12px; height: 24px; z-index: -1; background: linear-gradient(180deg, rgba(246,239,225,0), var(--rmd-paper) 65%); }
+.rmd-bottom-nav button { display: flex; flex: 1 1 0; min-width: 0; height: 37px; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; border: 0; border-radius: 999px; color: #998b7a; background: transparent; transition: color .18s ease, background .18s ease, flex .18s ease; }
+.rmd-bottom-nav button[aria-current="page"] { flex: 1.65 1 0; color: #fffaf2; background: #292421; box-shadow: 0 2px 7px rgba(39,34,31,.25); }
+.rmd-bottom-nav svg { width: 16px; height: 16px; flex: 0 0 auto; stroke-width: 1.9; }
+.rmd-bottom-nav span { overflow: hidden; font-size: 8px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
+
+.rmd-toast { position: absolute; left: 50%; bottom: 78px; z-index: 30; width: calc(100% - 28px); padding: 10px 12px; border-radius: 9px; color: #fff; background: #29231f; box-shadow: 0 8px 24px rgba(0,0,0,.2); text-align: center; font-size: 10px; font-weight: 700; transform: translateX(-50%); }
+
+@media (pointer: fine) {
+  .rmd-app, .rmd-app * { cursor: none !important; }
+}
+.rmd-cursor { position: absolute; z-index: 60; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; border: 1px solid rgba(255,255,255,.72); border-radius: 50%; opacity: 0; pointer-events: none; background: rgba(35,30,27,.58); box-shadow: 0 2px 7px rgba(30,24,20,.34), 0 0 0 3px rgba(255,255,255,.2); transform: scale(.7); transition: opacity .12s ease, transform .12s ease; }
+.rmd-cursor[data-visible="true"] { opacity: 1; transform: scale(1); }
 
 .live-demo-device__frame--macbook .live-demo-screen {
   left: 11.46%;
@@ -2690,7 +2827,8 @@ section[id] {
     overflow: visible;
   }
 
-  .live-demo-device__frame--iphone {
+  .live-demo-device__frame--iphone,
+  .live-demo-device__frame--samsung {
     width: min(82vw, 350px);
     max-width: none;
     transform: translateX(-0.15rem) rotate(3.5deg);

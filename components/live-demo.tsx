@@ -1,13 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowDown, Building2, CalendarDays, CircleDollarSign, LayoutDashboard, Settings, UsersRound } from "lucide-react";
+import { ArrowDown, Building2, CalendarDays, CircleDollarSign, LayoutDashboard, Settings, UserPlus, UsersRound, Wallet } from "lucide-react";
 
 import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { MacbookPro } from "@/components/ui/macbook-pro";
+import { SamsungS25Ultra } from "@/components/ui/samsung-s25-ultra";
 import { AdminMobileDemo, type AdminDemoView } from "@/components/admin-mobile-demo";
+import { ResidentMobileDemo } from "@/components/resident-mobile-demo";
 
 type Device = "iphone" | "macbook";
+type Role = "admin" | "resident";
 
 type PageCopy = {
   left: { label: string; description: string };
@@ -31,6 +34,20 @@ const heroShortcuts: Array<{
   { label: "Comunidad", view: "comunidad", icon: Building2 },
   { label: "Cobranza", view: "cobranza", icon: CircleDollarSign },
   { label: "Configuración", view: "configuracion", icon: Settings },
+];
+
+// Outer rail shown when the demo is switched to the resident profile. There is
+// only one navigable resident screen today (Inicio), so these buttons pulse
+// the same "this is a demo" toast used inside the phone instead of pretending
+// to open a screen that wasn't part of the supplied captures.
+const residentShortcuts: Array<{
+  label: string;
+  icon: typeof CircleDollarSign;
+}> = [
+  { label: "Reservar", icon: CalendarDays },
+  { label: "Mi estado", icon: Wallet },
+  { label: "Comunidad", icon: UsersRound },
+  { label: "Visitas", icon: UserPlus },
 ];
 
 const desktopShortcutViews: Record<DemoShortcutView, DesktopDemoView> = {
@@ -102,6 +119,19 @@ const adminPageCopy: Record<AdminDemoView, PageCopy> = {
   "nuevo-servicio": {
     left: { label: "Nuevo servicio", description: "Define el nombre, icono, disponibilidad y reglas básicas de una nueva área o servicio." },
     right: { label: "Configuración práctica", description: "La administración incorpora nuevos espacios sin alterar el resto de la experiencia." },
+  },
+};
+
+const residentPageCopy: PageCopy = {
+  left: {
+    label: "Inicio del residente",
+    description:
+      "El residente ve su estado de cuenta, accesos rápidos, próximas reservas y beneficios apenas abre la app.",
+  },
+  right: {
+    label: "Solo lo esencial",
+    description:
+      "Sin menús de administración: el residente navega su propia información desde el teléfono, nada más.",
   },
 };
 
@@ -524,6 +554,7 @@ function AdminDesktopDemoFrame({ requestedView }: { requestedView: DesktopDemoVi
 }
 
 export function LiveDemo() {
+  const [role, setRole] = useState<Role>("admin");
   const [device, setDevice] = useState<Device>("iphone");
   const [adminView, setAdminView] = useState<AdminDemoView>("dashboard");
   const [requestedAdminView, setRequestedAdminView] = useState<AdminDemoView>();
@@ -531,7 +562,9 @@ export function LiveDemo() {
   const [desktopCopy, setDesktopCopy] = useState<PageCopy>(
     desktopPageCopy[DEFAULT_DESKTOP_VIEW],
   );
-  const dynamicAdminCopy = device === "iphone" ? adminPageCopy[adminView] : desktopCopy;
+  const [residentPulse, setResidentPulse] = useState(0);
+  const dynamicAdminCopy =
+    role === "resident" ? residentPageCopy : device === "iphone" ? adminPageCopy[adminView] : desktopCopy;
 
   useEffect(() => {
     const enforcePhoneOnSmallScreens = () => {
@@ -605,6 +638,8 @@ export function LiveDemo() {
     setRequestedAdminView(undefined);
   }, []);
 
+  const pulseResident = () => setResidentPulse((value) => value + 1);
+
   const renderShortcuts = (items: typeof heroShortcuts) =>
     items.map(({ label, view, icon: Icon }) => (
       <button
@@ -619,13 +654,21 @@ export function LiveDemo() {
       </button>
     ));
 
+  const renderResidentShortcuts = (items: typeof residentShortcuts) =>
+    items.map(({ label, icon: Icon }) => (
+      <button className="live-demo-shortcut" type="button" key={label} onClick={pulseResident}>
+        <span className="live-demo-shortcut__icon"><Icon aria-hidden="true" /></span>
+        <span>{label}</span>
+      </button>
+    ));
+
   return (
     <section id="live-demo" className="live-demo-section" aria-labelledby="live-demo-title">
       <div className="live-demo-landscape" aria-hidden="true">
         <img src="/images/minka-community-landscape.png" alt="" />
       </div>
 
-      <div className="section-shell live-demo-layout" data-device={device}>
+      <div className="section-shell live-demo-layout" data-device={device} data-role={role}>
         <header className="live-demo-intro">
           <p className="live-demo-intro__eyebrow">Minka en acción</p>
           <h1 id="live-demo-title">Administra tu urbanización sin caos</h1>
@@ -640,9 +683,19 @@ export function LiveDemo() {
         </header>
 
         <div className="live-demo-shortcuts live-demo-shortcuts--rail" aria-label="Explorar funciones del demo">
-            {renderShortcuts(heroShortcuts.slice(0, 3))}
-            <span className="live-demo-shortcuts__phone-space" aria-hidden="true" />
-            {renderShortcuts(heroShortcuts.slice(3))}
+          {role === "resident" ? (
+            <>
+              {renderResidentShortcuts(residentShortcuts.slice(0, 2))}
+              <span className="live-demo-shortcuts__phone-space" aria-hidden="true" />
+              {renderResidentShortcuts(residentShortcuts.slice(2))}
+            </>
+          ) : (
+            <>
+              {renderShortcuts(heroShortcuts.slice(0, 3))}
+              <span className="live-demo-shortcuts__phone-space" aria-hidden="true" />
+              {renderShortcuts(heroShortcuts.slice(3))}
+            </>
+          )}
         </div>
 
         <div className="live-demo-copy live-demo-copy--left" aria-live="polite">
@@ -651,26 +704,43 @@ export function LiveDemo() {
         </div>
 
         <div className="live-demo-center">
-          <div className="live-demo-controls" role="group" aria-label="Cambiar dispositivo del demo">
-            <div className="live-demo-toggle live-demo-toggle--device" role="group" aria-label="Dispositivo">
-              <button type="button" aria-pressed={device === "iphone"} onClick={showPhone}>
-                Teléfono
+          <div className="live-demo-controls" role="group" aria-label="Cambiar perfil y dispositivo del demo">
+            <div className="live-demo-toggle live-demo-toggle--role" role="group" aria-label="Perfil">
+              <button type="button" aria-pressed={role === "resident"} onClick={() => setRole("resident")}>
+                Residente
               </button>
-              <button type="button" aria-pressed={device === "macbook"} onClick={showDesktop}>
-                Computadora
+              <button type="button" aria-pressed={role === "admin"} onClick={() => setRole("admin")}>
+                Administrador
               </button>
             </div>
+            {role === "admin" ? (
+              <div className="live-demo-toggle live-demo-toggle--device" role="group" aria-label="Dispositivo">
+                <button type="button" aria-pressed={device === "iphone"} onClick={showPhone}>
+                  Teléfono
+                </button>
+                <button type="button" aria-pressed={device === "macbook"} onClick={showDesktop}>
+                  Computadora
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div className="live-demo-device" data-reveal>
-            <div className={`live-demo-device__frame live-demo-device__frame--${device}`}>
-              {device === "iphone" ? (
+            <div className={`live-demo-device__frame live-demo-device__frame--${role === "resident" ? "samsung" : device}`}>
+              {role === "resident" ? (
+                <SamsungS25Ultra className="live-demo-device__svg" />
+              ) : device === "iphone" ? (
                 <Iphone16Pro className="live-demo-device__svg" />
               ) : (
                 <MacbookPro className="live-demo-device__svg" />
               )}
               <div className="live-demo-screen">
-                {device === "iphone" ? (
+                {role === "resident" ? (
+                  <>
+                    <ResidentMobileDemo pulse={residentPulse} />
+                    <div className="live-demo-punch-hole" aria-hidden="true" />
+                  </>
+                ) : device === "iphone" ? (
                   <>
                     <AdminMobileDemo requestedView={requestedAdminView} onViewChange={handleMobileViewChange} />
                     <div className="live-demo-notch" aria-hidden="true" />
@@ -679,7 +749,7 @@ export function LiveDemo() {
                   <AdminDesktopDemoFrame requestedView={desktopView} />
                 )}
               </div>
-              {device === "iphone" ? <div className="live-demo-glare" aria-hidden="true" /> : null}
+              {role === "resident" || device === "iphone" ? <div className="live-demo-glare" aria-hidden="true" /> : null}
             </div>
           </div>
         </div>
