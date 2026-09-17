@@ -1959,22 +1959,22 @@ section[id] {
 
 /* =====================================================================
    Resident mobile demo (rmd-*). Same 390 x 844-style canvas approach as the
-   admin demo (amd-*), with a palette read off the supplied resident capture:
-   warm cream paper, a terracotta emergency card, burnt-orange headings/CTAs,
-   tan quick-action tiles, white cards and soft green availability pills.
+   admin demo (amd-*) — and the SAME base palette values, taken directly from
+   .amd-app, so the two profiles read as one product. The only new color is
+   the emergency card's flat brick tone, sampled from the real app capture.
    ===================================================================== */
 .rmd-app {
-  --rmd-ink: #241f19;
-  --rmd-muted: #8c8071;
-  --rmd-paper: #f6efe1;
-  --rmd-card: #ffffff;
-  --rmd-line: #ece1cd;
-  --rmd-clay: #c1590f;
-  --rmd-clay-soft: #efe0c8;
-  --rmd-terracotta-start: #c85a34;
-  --rmd-terracotta-end: #a8431f;
-  --rmd-green: #1f8a5f;
-  --rmd-green-soft: #e2f2e9;
+  --rmd-ink: #211d1a;
+  --rmd-muted: #847b72;
+  --rmd-paper: #fbf8f2;
+  --rmd-card: #fffdfa;
+  --rmd-line: #e8e0d6;
+  --rmd-clay: #bd5608;
+  --rmd-clay-soft: #f5e5d7;
+  --rmd-green: #087962;
+  --rmd-green-soft: #d9e6de;
+  --rmd-terracotta: #a6432a;
+  --rmd-terracotta-deep: #953c25;
   position: absolute;
   inset: 0;
   display: grid;
@@ -2000,9 +2000,9 @@ section[id] {
 .rmd-greeting__unit svg { width: 10px; height: 10px; }
 .rmd-bell { position: relative; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; background: transparent; }
 .rmd-bell svg { width: 16px; height: 16px; color: var(--rmd-ink); }
-.rmd-bell__badge { position: absolute; top: -2px; right: -2px; padding: 1px 4px; border-radius: 999px; background: var(--rmd-terracotta-end); color: #fff; font-size: 7px; font-weight: 800; }
+.rmd-bell__badge { position: absolute; top: -2px; right: -2px; padding: 1px 4px; border-radius: 999px; background: var(--rmd-terracotta-deep); color: #fff; font-size: 7px; font-weight: 800; }
 
-.rmd-emergency { display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; column-gap: 11px; row-gap: 6px; width: 100%; padding: 13px 14px; border: 0; border-radius: 16px; background: linear-gradient(135deg, var(--rmd-terracotta-start), var(--rmd-terracotta-end)); box-shadow: 0 10px 22px rgba(150, 66, 33, 0.28); text-align: left; }
+.rmd-emergency { display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; column-gap: 11px; row-gap: 6px; width: 100%; padding: 13px 14px; border: 0; border-radius: 16px; background: var(--rmd-terracotta); box-shadow: 0 8px 18px rgba(90, 45, 28, 0.22); text-align: left; }
 .rmd-emergency__icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); color: #fff; }
 .rmd-emergency__icon svg { width: 17px; height: 17px; }
 .rmd-emergency__copy { display: grid; gap: 2px; color: #fff; }
@@ -2042,11 +2042,14 @@ section[id] {
 .rmd-card__body strong { font-size: 11px; font-weight: 800; }
 .rmd-card__body em { font-style: normal; color: var(--rmd-muted); font-size: 9px; }
 
+/* Identical to .amd-bottom-nav (same markup shape too), so both profiles
+   share one nav-bar look. */
 .rmd-bottom-nav { position: relative; z-index: 5; display: flex; align-items: center; margin: 6px 8px 10px; padding: 4px; border: 1px solid rgba(190, 178, 164, .54); border-radius: 999px; background: rgba(255, 254, 251, .99); box-shadow: 0 5px 10px rgba(45, 35, 27, .18), inset 0 1px 0 #fff; backdrop-filter: blur(14px); }
-.rmd-bottom-nav::before { content: ""; position: absolute; left: -8px; right: -8px; bottom: -12px; height: 24px; z-index: -1; background: linear-gradient(180deg, rgba(246,239,225,0), var(--rmd-paper) 65%); }
-.rmd-bottom-nav button { display: flex; flex: 1 1 0; min-width: 0; height: 37px; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; border: 0; border-radius: 999px; color: #998b7a; background: transparent; transition: color .18s ease, background .18s ease, flex .18s ease; }
+.rmd-bottom-nav::before { content: ""; position: absolute; left: -8px; right: -8px; bottom: -12px; height: 24px; z-index: -1; background: linear-gradient(180deg, rgba(251,248,242,0), var(--rmd-paper) 65%); }
+.rmd-bottom-nav button { display: flex; flex: 1 1 0; min-width: 0; height: 37px; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; border: 0; border-radius: 999px; color: #998b7a; background: transparent; transition: color .18s ease, background .18s ease, transform .18s ease, flex .18s ease; }
+.rmd-bottom-nav button:hover { color: #4b433d; transform: translateY(-1px); }
 .rmd-bottom-nav button[aria-current="page"] { flex: 1.65 1 0; color: #fffaf2; background: #292421; box-shadow: 0 2px 7px rgba(39,34,31,.25); }
-.rmd-bottom-nav svg { width: 16px; height: 16px; flex: 0 0 auto; stroke-width: 1.9; }
+.rmd-bottom-nav svg { width: 16px; height: 16px; flex: 0 0 auto; stroke-width: 1.7; }
 .rmd-bottom-nav span { overflow: hidden; font-size: 8px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
 
 .rmd-toast { position: absolute; left: 50%; bottom: 78px; z-index: 30; width: calc(100% - 28px); padding: 10px 12px; border-radius: 9px; color: #fff; background: #29231f; box-shadow: 0 8px 24px rgba(0,0,0,.2); text-align: center; font-size: 10px; font-weight: 700; transform: translateX(-50%); }
