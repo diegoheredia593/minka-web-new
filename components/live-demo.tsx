@@ -7,7 +7,7 @@ import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { MacbookPro } from "@/components/ui/macbook-pro";
 import { SamsungS25Ultra } from "@/components/ui/samsung-s25-ultra";
 import { AdminMobileDemo, type AdminDemoView } from "@/components/admin-mobile-demo";
-import { ResidentMobileDemo } from "@/components/resident-mobile-demo";
+import { ResidentMobileDemo, type ResidentCommand } from "@/components/resident-mobile-demo";
 
 type Device = "iphone" | "macbook";
 type Role = "admin" | "resident";
@@ -36,18 +36,19 @@ const heroShortcuts: Array<{
   { label: "Configuración", view: "configuracion", icon: Settings },
 ];
 
-// Outer rail shown when the demo is switched to the resident profile. There is
-// only one navigable resident screen today (Inicio), so these buttons pulse
-// the same "this is a demo" toast used inside the phone instead of pretending
-// to open a screen that wasn't part of the supplied captures.
+// Outer rail shown when the demo is switched to the resident profile. Each
+// button drives the phone straight to the matching screen inside
+// ResidentMobileDemo, mirroring the quick actions on the resident's own
+// Inicio screen.
 const residentShortcuts: Array<{
   label: string;
   icon: typeof CircleDollarSign;
+  command: ResidentCommand;
 }> = [
-  { label: "Reservar", icon: CalendarDays },
-  { label: "Mi estado", icon: Wallet },
-  { label: "Comunidad", icon: UsersRound },
-  { label: "Visitas", icon: UserPlus },
+  { label: "Reservar", icon: CalendarDays, command: "reservar" },
+  { label: "Mi estado", icon: Wallet, command: "estado" },
+  { label: "Comunidad", icon: UsersRound, command: "comunidad" },
+  { label: "Visitas", icon: UserPlus, command: "visitas" },
 ];
 
 const desktopShortcutViews: Record<DemoShortcutView, DesktopDemoView> = {
@@ -562,7 +563,8 @@ export function LiveDemo() {
   const [desktopCopy, setDesktopCopy] = useState<PageCopy>(
     desktopPageCopy[DEFAULT_DESKTOP_VIEW],
   );
-  const [residentPulse, setResidentPulse] = useState(0);
+  const [residentCommand, setResidentCommand] = useState<{ type: ResidentCommand; token: number } | null>(null);
+  const residentCommandCounter = useRef(0);
   const dynamicAdminCopy =
     role === "resident" ? residentPageCopy : device === "iphone" ? adminPageCopy[adminView] : desktopCopy;
 
@@ -638,7 +640,10 @@ export function LiveDemo() {
     setRequestedAdminView(undefined);
   }, []);
 
-  const pulseResident = () => setResidentPulse((value) => value + 1);
+  const runResidentCommand = (type: ResidentCommand) => {
+    residentCommandCounter.current += 1;
+    setResidentCommand({ type, token: residentCommandCounter.current });
+  };
 
   const renderShortcuts = (items: typeof heroShortcuts) =>
     items.map(({ label, view, icon: Icon }) => (
@@ -655,8 +660,8 @@ export function LiveDemo() {
     ));
 
   const renderResidentShortcuts = (items: typeof residentShortcuts) =>
-    items.map(({ label, icon: Icon }) => (
-      <button className="live-demo-shortcut" type="button" key={label} onClick={pulseResident}>
+    items.map(({ label, icon: Icon, command }) => (
+      <button className="live-demo-shortcut" type="button" key={label} onClick={() => runResidentCommand(command)}>
         <span className="live-demo-shortcut__icon"><Icon aria-hidden="true" /></span>
         <span>{label}</span>
       </button>
@@ -737,7 +742,7 @@ export function LiveDemo() {
               <div className="live-demo-screen">
                 {role === "resident" ? (
                   <>
-                    <ResidentMobileDemo pulse={residentPulse} />
+                    <ResidentMobileDemo commandType={residentCommand?.type} commandToken={residentCommand?.token} />
                     <div className="live-demo-punch-hole" aria-hidden="true" />
                   </>
                 ) : device === "iphone" ? (
