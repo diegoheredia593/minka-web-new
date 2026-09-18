@@ -124,7 +124,7 @@ const onboardingSteps = [
 export function MinkaLanding() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [formStatus, setFormStatus] = useState<
-    "idle" | "submitting" | "success" | "partial" | "error"
+    "idle" | "submitting" | "success" | "error"
   >("idle");
 
   const submitDemoRequest = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -163,16 +163,16 @@ export function MinkaLanding() {
       });
       const result = (await response.json()) as {
         ok?: boolean;
-        mode?: "crm" | "forms" | "partial" | "ignored";
+        mode?: "crm" | "ignored" | "error";
       };
 
       if (!response.ok || !result.ok) {
-        throw new Error("HubSpot rejected the submission");
+        throw new Error("Capsule rejected the submission");
       }
 
       form.reset();
       trackEvent("generate_lead", { form_name: "demo_request" });
-      setFormStatus(result.mode === "partial" ? "partial" : "success");
+      setFormStatus("success");
     } catch {
       setFormStatus("error");
     }
@@ -430,11 +430,6 @@ export function MinkaLanding() {
               <div className="form-status" role="status" aria-live="polite">
                 {formStatus === "success" ? (
                   <p>Ya estás en la lista. Te contactaremos muy pronto.</p>
-                ) : null}
-                {formStatus === "partial" ? (
-                  <p>
-                    Recibimos tus datos de contacto. Te contactaremos para completar la información.
-                  </p>
                 ) : null}
                 {formStatus === "error" ? (
                   <p className="form-status--error">

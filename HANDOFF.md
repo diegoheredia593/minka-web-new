@@ -69,7 +69,7 @@ No se ha configurado un comando de publicación manual como fuente de verdad: Cl
 | `app/sitemap.ts`, `app/robots.ts` | SEO técnico. |
 | `lib/analytics.ts` | Eventos GA4. |
 | `app/api/demo-request/route.ts` | Endpoint del formulario. |
-| `lib/hubspot.ts` | Integración con HubSpot (contacto + deal + pipeline). |
+| `lib/capsule.ts` | Integración con Capsule CRM (contacto + nota con el mensaje). |
 | `.github/workflows/publish-android-apk.yml` | Reemplaza el APK de la release desde Google Drive cuando se ejecuta manualmente. |
 
 ## Detalles importantes de UI
@@ -113,30 +113,35 @@ Al probar cualquier ajuste responsive, verificar:
 - No volver a añadir `/planes` al sitemap ni marcarlo indexable mientras la oferta sea personalizada.
 - No prometer un ranking inmediato: la indexación y el posicionamiento dependen del rastreo y de contenido/enlaces con el tiempo.
 
-## Formulario y HubSpot
+## Formulario y Capsule CRM
 
 El formulario visible está en `components/minka-landing.tsx` y hace `POST` a `/api/demo-request`.
 
-La integración tiene dos rutas:
+`lib/capsule.ts` maneja la integración: busca un contacto (`party`) existente en
+Capsule por correo (`GET /parties/search`); si existe lo actualiza, si no lo
+crea (`POST /parties`, tipo `person`, con `emailAddresses`, `phoneNumbers` y un
+resumen de comunidad/unidades en `about`). Después adjunta una nota
+(`POST /entries`, tipo `note`) con el mensaje completo, unidades, comunidad y
+la página de origen — así toda la información que dejó la persona queda
+visible en la ficha del contacto, no repartida entre "forms" y "CRM" como
+pasaba con HubSpot.
 
-1. Con `HUBSPOT_PRIVATE_APP_TOKEN` (o `HUBSPOT_ACCESS_TOKEN`) configurado como secreto de Cloudflare, crea/actualiza el contacto, crea un deal, lo asocia y usa/crea el pipeline **Minka - Ventas**.
-2. Sin token, hace fallback al formulario HubSpot Forms ya configurado.
+Si falta el secreto o Capsule responde con error, el endpoint devuelve
+`ok: false` con un mensaje claro (no hay fallback silencioso a otro sistema).
 
-Valores de HubSpot presentes en código:
-
-- Portal ID: `51970751`
-- Form ID: `d2cac2e3-232c-47f8-9f21-3856a09a2dfd`
-- Pipeline deseado: `Minka - Ventas`
-
-Variables opcionales de Cloudflare (configurarlas como secretos, nunca en Git):
+Variable requerida de Cloudflare (configurarla como secreto, nunca en Git):
 
 ```text
-HUBSPOT_PRIVATE_APP_TOKEN=<token privado de HubSpot>
-HUBSPOT_PIPELINE_ID=<id del pipeline existente, opcional>
-HUBSPOT_INITIAL_STAGE_ID=<id de la etapa inicial, opcional>
+CAPSULE_API_TOKEN=<personal access token de Capsule, generado en My Preferences > API Authentication Tokens>
 ```
 
-Después de cambios a este flujo, probar primero con datos de prueba y confirmar tanto la respuesta de `/api/demo-request` como el contacto/deal en HubSpot. No registrar ni subir tokens reales al repositorio.
+Después de cambios a este flujo, probar primero con datos de prueba y
+confirmar tanto la respuesta de `/api/demo-request` como el contacto/nota en
+Capsule. No registrar ni subir tokens reales al repositorio.
+
+Integración anterior con HubSpot (contacto + deal + pipeline + fallback a
+HubSpot Forms) retirada el 18 de septiembre de 2026 por ser difícil de
+encontrar los contactos y tener la mayoría de funciones bajo planes pagos.
 
 ## APK móvil
 
@@ -191,5 +196,5 @@ No usar `git reset --hard`, `git checkout --`, borrados masivos o cambios de sec
 - Sustituir las pantallas de demostración por capturas reales de la aplicación cuando se proporcionen.
 - Medir formularios y CTA en GA4 tras tener tráfico suficiente.
 - Revisar Search Console cuando el sitemap termine de procesarse y solicitar indexación de la home si es necesario.
-- Validar de extremo a extremo que los leads llegan al pipeline HubSpot tras cualquier modificación de Cloudflare o HubSpot.
+- Validar de extremo a extremo que los leads llegan a Capsule tras cualquier modificación de Cloudflare o Capsule.
 

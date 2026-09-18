@@ -1,4 +1,4 @@
-import { handleDemoRequest, type DemoRequestPayload } from "@/lib/hubspot";
+import { handleDemoRequest, type DemoRequestPayload } from "@/lib/capsule";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
