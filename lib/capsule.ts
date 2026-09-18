@@ -7,6 +7,11 @@ export type DemoRequestPayload = {
   units?: string;
   community?: string;
   message?: string;
+  timeline?: string;
+  currentTool?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
   website?: string;
   pageName?: string;
   pageUri?: string;
@@ -18,13 +23,20 @@ type DemoRequestResult =
   | { ok: false; mode: "error"; message: string };
 
 type CapsuleEmailAddress = { address?: string };
+type CapsuleTag = { id?: number; name?: string; _delete?: boolean };
 type CapsuleParty = {
   id: number;
   type?: string;
   emailAddresses?: CapsuleEmailAddress[];
+  tags?: CapsuleTag[];
 };
 type CapsulePartySearchResponse = { parties?: CapsuleParty[] };
 type CapsulePartyResponse = { party: CapsuleParty };
+
+// The three score tags this integration manages. Kept as plain text (no
+// emoji) so they sort predictably and filter reliably in Capsule's UI.
+const SCORE_TAG_NAMES = ["Lead caliente", "Lead tibio", "Lead frío"] as const;
+type ScoreTagName = (typeof SCORE_TAG_NAMES)[number];
 
 const API_BASE = "https://api.capsulecrm.com/api/v2";
 
@@ -120,24 +132,156 @@ async function findPartyByEmail(email: string, token: string) {
   }
 }
 
-function buildAbout(payload: DemoRequestPayload) {
+function parseUnits(value?: string) {
+  const match = clean(value)?.match(/\d+/);
+  return match ? Number(match[0]) : undefined;
+}
+
+const TIMELINE_SCORES: Record<string, { points: number; label: string }> = {
+  ya: { points: 30, label: "quiere empezar lo antes posible" },
+  mes: { points: 20, label: "quiere empezar este mes" },
+  explorando: { points: 5, label: "todavía está explorando opciones" },
+};
+
+const CURRENT_TOOL_SCORES: Record<string, { points: number; label: string }> = {
+  nada: { points: 15, label: "no usa ninguna herramienta hoy (caos total)" },
+  "whatsapp-excel": { points: 10, label: "gestiona hoy con WhatsApp/Excel" },
+  "otro-software": { points: 5, label: "ya usa otro software" },
+};
+
+const REFERRAL_SOURCES = new Set(["referral", "referido", "whatsapp", "word-of-mouth"]);
+
+// A simple, transparent point system built only from what the form already
+// captures (plus the two new qualifying questions and UTM). No external
+// scoring service, no black box: every point is explained in `reasons` so
+// it can be read straight off the note in Capsule.
+function computeScore(payload: DemoRequestPayload) {
+  let score = 0;
+  const reasons: string[] = [];
+
+  const units = parseUnits(payload.units);
+  if (units !== undefined) {
+    if (units >= 50) {
+      score += 30;
+    } else if (units >= 20) {
+      score += 20;
+    } else if (units >= 5) {
+      score += 10;
+    } else {
+      score += 5;
+    }
+    reasons.push(`${units} unidades`);
+  }
+
+  if (clean(payload.phone)) {
+    score += 10;
+    reasons.push("dejó teléfono");
+  }
+
+  const message = clean(payload.message);
+  if (message) {
+    score += message.length > 40 ? 10 : 5;
+    reasons.push(message.length > 40 ? "mensaje detallado" : "dejó un mensaje");
+  }
+
+  const timeline = payload.timeline ? TIMELINE_SCORES[payload.timeline] : undefined;
+  if (timeline) {
+    score += timeline.points;
+    reasons.push(timeline.label);
+  }
+
+  const currentTool = payload.currentTool ? CURRENT_TOOL_SCORES[payload.currentTool] : undefined;
+  if (currentTool) {
+    score += currentTool.points;
+    reasons.push(currentTool.label);
+  }
+
+  const source = clean(payload.utmSource)?.toLowerCase();
+  if (source && REFERRAL_SOURCES.has(source)) {
+    score += 5;
+    reasons.push("llegó por referido");
+  }
+
+  const tag: ScoreTagName = score >= 60 ? "Lead caliente" : score >= 30 ? "Lead tibio" : "Lead frío";
+
+  return { score, tag, reasons };
+}
+
+function buildAbout(payload: DemoRequestPayload, score: ReturnType<typeof computeScore>) {
   const lines = [
     clean(payload.community) ? `Comunidad: ${clean(payload.community)}` : undefined,
     clean(payload.units) ? `Unidades: ${clean(payload.units)}` : undefined,
+    `${score.tag} (${score.score}/100)`,
   ].filter((line): line is string => Boolean(line));
 
   return lines.join(" · ") || undefined;
 }
 
-function buildNoteContent(payload: DemoRequestPayload) {
+function buildNoteContent(payload: DemoRequestPayload, score: ReturnType<typeof computeScore>) {
+  const utm = [
+    clean(payload.utmSource) ? `fuente=${clean(payload.utmSource)}` : undefined,
+    clean(payload.utmMedium) ? `medio=${clean(payload.utmMedium)}` : undefined,
+    clean(payload.utmCampaign) ? `campaña=${clean(payload.utmCampaign)}` : undefined,
+  ].filter((line): line is string => Boolean(line));
+
   const lines = [
     clean(payload.message) ? `Mensaje: ${clean(payload.message)}` : undefined,
     clean(payload.units) ? `Unidades: ${clean(payload.units)}` : undefined,
     clean(payload.community) ? `Comunidad: ${clean(payload.community)}` : undefined,
+    payload.timeline ? `Cuándo quiere empezar: ${TIMELINE_SCORES[payload.timeline]?.label ?? payload.timeline}` : undefined,
+    payload.currentTool
+      ? `Cómo gestiona hoy: ${CURRENT_TOOL_SCORES[payload.currentTool]?.label ?? payload.currentTool}`
+      : undefined,
+    utm.length > 0 ? `UTM: ${utm.join(", ")}` : undefined,
+    `Calificación: ${score.score}/100 — ${score.tag}${score.reasons.length > 0 ? ` (${score.reasons.join(", ")})` : ""}`,
     `Origen: ${payload.pageName ?? "Minka"} (${payload.pageUri ?? "https://appminka.com/"})`,
   ].filter((line): line is string => Boolean(line));
 
   return lines.join("\n") || "Solicitud de demo desde appminka.com";
+}
+
+// Clears out any of OUR score tags the party already carries (by id +
+// _delete) and adds the current one by name, so a returning lead's tag
+// reflects their latest score instead of accumulating every tag it has
+// ever earned. Tags Diego added by hand in Capsule are left untouched.
+async function replaceScoreTag(
+  partyId: number,
+  nextTag: ScoreTagName,
+  token: string,
+) {
+  let existingTags: CapsuleTag[] = [];
+  try {
+    const current = await capsuleRequest<CapsulePartyResponse>(
+      `/parties/${partyId}?embed=tags`,
+      token,
+    );
+    existingTags = current.party.tags ?? [];
+  } catch {
+    // If we can't read current tags, still try to add the new one below
+    // rather than failing the whole submission over a cosmetic detail.
+  }
+
+  const staleScoreTags = existingTags
+    .filter(
+      (tag) =>
+        tag.id !== undefined &&
+        tag.name &&
+        (SCORE_TAG_NAMES as readonly string[]).includes(tag.name) &&
+        tag.name !== nextTag,
+    )
+    .map((tag) => ({ id: tag.id, _delete: true as const }));
+
+  const alreadyHasTag = existingTags.some((tag) => tag.name === nextTag);
+  const tags = [...staleScoreTags, ...(alreadyHasTag ? [] : [{ name: nextTag }])];
+
+  if (tags.length === 0) {
+    return;
+  }
+
+  await capsuleRequest(`/parties/${partyId}`, token, {
+    method: "PUT",
+    body: JSON.stringify({ party: { tags } }),
+  });
 }
 
 async function upsertParty(payload: DemoRequestPayload, token: string) {
@@ -148,7 +292,8 @@ async function upsertParty(payload: DemoRequestPayload, token: string) {
 
   const { firstName, lastName } = splitName(payload.name);
   const phone = clean(payload.phone);
-  const about = buildAbout(payload);
+  const score = computeScore(payload);
+  const about = buildAbout(payload, score);
 
   const partyBody: Record<string, unknown> = {
     type: "person",
@@ -171,25 +316,34 @@ async function upsertParty(payload: DemoRequestPayload, token: string) {
       token,
       { method: "PUT", body: JSON.stringify({ party: partyBody }) },
     );
-    return updated.party.id;
+    await replaceScoreTag(updated.party.id, score.tag, token);
+    return { id: updated.party.id, score };
   }
 
   const created = await capsuleRequest<CapsulePartyResponse>(
     "/parties",
     token,
-    { method: "POST", body: JSON.stringify({ party: partyBody }) },
+    {
+      method: "POST",
+      body: JSON.stringify({ party: { ...partyBody, tags: [{ name: score.tag }] } }),
+    },
   );
-  return created.party.id;
+  return { id: created.party.id, score };
 }
 
-async function addNote(partyId: number, payload: DemoRequestPayload, token: string) {
+async function addNote(
+  partyId: number,
+  payload: DemoRequestPayload,
+  score: ReturnType<typeof computeScore>,
+  token: string,
+) {
   await capsuleRequest("/entries", token, {
     method: "POST",
     body: JSON.stringify({
       entry: {
         type: "note",
         party: { id: partyId },
-        content: buildNoteContent(payload),
+        content: buildNoteContent(payload, score),
       },
     }),
   });
@@ -213,14 +367,14 @@ export async function handleDemoRequest(
   }
 
   try {
-    const contactId = await upsertParty(payload, token);
+    const { id: contactId, score } = await upsertParty(payload, token);
 
     let noteCreated = true;
     try {
-      await addNote(contactId, payload, token);
+      await addNote(contactId, payload, score, token);
     } catch {
       // The contact is still useful even if the note (mensaje, unidades,
-      // comunidad, origen) couldn't be attached for some reason.
+      // comunidad, origen, calificación) couldn't be attached for some reason.
       noteCreated = false;
     }
 

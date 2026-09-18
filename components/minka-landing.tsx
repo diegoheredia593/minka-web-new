@@ -121,11 +121,47 @@ const onboardingSteps = [
   },
 ];
 
+// Captured once on first load: the utm_* params from the URL that brought
+// the visitor in, kept in sessionStorage so they still apply if the person
+// submits later in the same tab. Used only as a qualifying signal for the
+// lead score, not for analytics (GA4 already handles that separately).
+type StoredUtm = { utmSource?: string; utmMedium?: string; utmCampaign?: string };
+
+function readStoredUtm(): StoredUtm {
+  if (typeof window === "undefined") {
+    return {};
+  }
+
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl: StoredUtm = {
+      utmSource: params.get("utm_source") ?? undefined,
+      utmMedium: params.get("utm_medium") ?? undefined,
+      utmCampaign: params.get("utm_campaign") ?? undefined,
+    };
+
+    if (fromUrl.utmSource || fromUrl.utmMedium || fromUrl.utmCampaign) {
+      window.sessionStorage.setItem("minka_utm", JSON.stringify(fromUrl));
+      return fromUrl;
+    }
+
+    const stored = window.sessionStorage.getItem("minka_utm");
+    return stored ? (JSON.parse(stored) as StoredUtm) : {};
+  } catch {
+    return {};
+  }
+}
+
 export function MinkaLanding() {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const utmRef = useRef<StoredUtm>({});
   const [formStatus, setFormStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
+
+  useEffect(() => {
+    utmRef.current = readStoredUtm();
+  }, []);
 
   const submitDemoRequest = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -149,6 +185,8 @@ export function MinkaLanding() {
       units: String(formData.get("units") ?? ""),
       community: String(formData.get("community") ?? ""),
       message: String(formData.get("message") ?? ""),
+      timeline: String(formData.get("timeline") ?? ""),
+      currentTool: String(formData.get("currentTool") ?? ""),
     };
 
     try {
@@ -157,6 +195,7 @@ export function MinkaLanding() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
+          ...utmRef.current,
           pageName: document.title,
           pageUri: window.location.href,
         }),
@@ -419,6 +458,26 @@ export function MinkaLanding() {
                   name="message"
                   placeholder="Reservas, pagos, comunicación, residentes..."
                 />
+              </div>
+              <div className="field-row">
+                <div>
+                  <Label htmlFor="timeline">¿Cuándo te gustaría empezar?</Label>
+                  <select id="timeline" name="timeline" data-slot="input" defaultValue="">
+                    <option value="">Selecciona una opción</option>
+                    <option value="ya">Lo antes posible</option>
+                    <option value="mes">Este mes</option>
+                    <option value="explorando">Solo estoy explorando opciones</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="currentTool">¿Cómo gestionas tu comunidad hoy?</Label>
+                  <select id="currentTool" name="currentTool" data-slot="input" defaultValue="">
+                    <option value="">Selecciona una opción</option>
+                    <option value="nada">No uso nada, es un caos</option>
+                    <option value="whatsapp-excel">WhatsApp y Excel</option>
+                    <option value="otro-software">Otro software</option>
+                  </select>
+                </div>
               </div>
               <FlowButton
                 tone="light"
