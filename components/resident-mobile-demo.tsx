@@ -998,7 +998,15 @@ function PerfilAyuda({ back, fallback }: { back: () => void; fallback: () => voi
  * the same "this is a demo" toast used by the admin mobile demo instead of
  * inventing a screen that wasn't provided.
  */
-export function ResidentMobileDemo({ commandType, commandToken }: { commandType?: ResidentCommand; commandToken?: number }) {
+export function ResidentMobileDemo({
+  commandType,
+  commandToken,
+  onViewChange,
+}: {
+  commandType?: ResidentCommand;
+  commandToken?: number;
+  onViewChange?: (view: ResidentDemoView) => void;
+}) {
   const [view, setView] = useState<View>("inicio");
   const [emergencyTaps, setEmergencyTaps] = useState(0);
   const [toast, setToast] = useState(false);
@@ -1012,6 +1020,13 @@ export function ResidentMobileDemo({ commandType, commandToken }: { commandType?
   };
   const fallback = () => setToast(true);
   const back = () => navigate(backTargetFor[view as DetailView] ?? "inicio");
+
+  // Lets the parent (live-demo) know which screen is showing, the same way
+  // AdminMobileDemo reports its view, so the explanatory captions beside the
+  // phone can change with each screen instead of staying static.
+  useEffect(() => {
+    onViewChange?.(view);
+  }, [onViewChange, view]);
 
   useEffect(() => {
     if (!toast) return;

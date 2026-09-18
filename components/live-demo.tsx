@@ -7,7 +7,7 @@ import { Iphone16Pro } from "@/components/ui/iphone-16-pro";
 import { MacbookPro } from "@/components/ui/macbook-pro";
 import { SamsungS25Ultra } from "@/components/ui/samsung-s25-ultra";
 import { AdminMobileDemo, type AdminDemoView } from "@/components/admin-mobile-demo";
-import { ResidentMobileDemo, type ResidentCommand } from "@/components/resident-mobile-demo";
+import { ResidentMobileDemo, type ResidentCommand, type ResidentDemoView } from "@/components/resident-mobile-demo";
 
 type Device = "iphone" | "macbook";
 type Role = "admin" | "resident";
@@ -123,16 +123,225 @@ const adminPageCopy: Record<AdminDemoView, PageCopy> = {
   },
 };
 
-const residentPageCopy: PageCopy = {
-  left: {
-    label: "Inicio del residente",
-    description:
-      "El residente ve su estado de cuenta, accesos rápidos, próximas reservas y beneficios apenas abre la app.",
+// Mirrors adminPageCopy: one pair of captions per resident screen, so the
+// explanatory text beside the phone changes with each screen the resident
+// navigates to, instead of staying fixed on the Inicio copy.
+const residentPageCopy: Record<ResidentDemoView, PageCopy> = {
+  inicio: {
+    left: {
+      label: "Inicio del residente",
+      description:
+        "El residente ve su estado de cuenta, accesos rápidos, próximas reservas y beneficios apenas abre la app.",
+    },
+    right: {
+      label: "Solo lo esencial",
+      description:
+        "Sin menús de administración: el residente navega su propia información desde el teléfono, nada más.",
+    },
   },
-  right: {
-    label: "Solo lo esencial",
-    description:
-      "Sin menús de administración: el residente navega su propia información desde el teléfono, nada más.",
+  reservas: {
+    left: {
+      label: "Mis reservas",
+      description:
+        "El residente revisa sus reservas activas y el historial de espacios comunes sin llamar a la administración.",
+    },
+    right: {
+      label: "Reservar en segundos",
+      description:
+        "Desde aquí puede iniciar una nueva reserva para cancha, salón u otro espacio disponible.",
+    },
+  },
+  "reserva-cancha": {
+    left: {
+      label: "Reservar cancha",
+      description:
+        "Elige el día y el horario disponible para la cancha de fútbol en pocos toques.",
+    },
+    right: {
+      label: "Sin choques de horario",
+      description:
+        "Los espacios ya ocupados no aparecen disponibles, evitando reservas dobles.",
+    },
+  },
+  comunidad: {
+    left: {
+      label: "Comunidad",
+      description:
+        "El residente ve anuncios, eventos y encuestas oficiales de su urbanización en un solo lugar.",
+    },
+    right: {
+      label: "Vecinos conectados",
+      description:
+        "También puede leer publicaciones de otros residentes y acceder al mapa de la comunidad.",
+    },
+  },
+  "comunidad-map": {
+    left: {
+      label: "Mapa de la comunidad",
+      description:
+        "Muestra la distribución de manzanas, áreas comunes y accesos para ubicarse dentro de la urbanización.",
+    },
+    right: {
+      label: "Referencia rápida",
+      description:
+        "Los controles de zoom ayudan a identificar canchas, piscina y la garita principal.",
+    },
+  },
+  "comunidad-vecinos": {
+    left: {
+      label: "Entre vecinos",
+      description:
+        "Un espacio para que los residentes publiquen avisos o pedidos directamente a la comunidad.",
+    },
+    right: {
+      label: "Moderado por la administración",
+      description:
+        "El residente puede ver todas las publicaciones o filtrar únicamente las suyas.",
+    },
+  },
+  perfil: {
+    left: {
+      label: "Perfil del residente",
+      description:
+        "Reúne datos de contacto, estado de cuenta y accesos a cada función disponible para el residente.",
+    },
+    right: {
+      label: "Todo en un solo lugar",
+      description:
+        "Desde aquí se llega a pagos, visitas, notificaciones, documentos y ajustes de la cuenta.",
+    },
+  },
+  "perfil-reservas": {
+    left: {
+      label: "Historial de reservas",
+      description:
+        "El residente revisa sus reservas pasadas y su estado, confirmadas o canceladas.",
+    },
+    right: {
+      label: "Trazabilidad completa",
+      description:
+        "Permite confirmar qué espacios ha usado sin depender de mensajes o comprobantes sueltos.",
+    },
+  },
+  "perfil-estado": {
+    left: {
+      label: "Estado de cuenta",
+      description:
+        "Muestra el saldo pendiente, la cuota vigente y los pagos que todavía no se han realizado.",
+    },
+    right: {
+      label: "Pagar sin fricción",
+      description:
+        "Desde aquí el residente puede iniciar una transferencia o revisar las cuentas de la comunidad.",
+    },
+  },
+  "perfil-transferencia": {
+    left: {
+      label: "Registrar transferencia",
+      description:
+        "El residente reporta un pago realizado adjuntando el comprobante correspondiente.",
+    },
+    right: {
+      label: "Confirmación más rápida",
+      description:
+        "La administración recibe el aviso y concilia el pago sin esperar a que alguien lo escriba por chat.",
+    },
+  },
+  "perfil-cuentas": {
+    left: {
+      label: "Cuentas para pagar",
+      description:
+        "Lista las cuentas bancarias oficiales de la comunidad donde el residente puede transferir.",
+    },
+    right: {
+      label: "Fondos directos",
+      description:
+        "El dinero llega directamente a la cuenta de la comunidad, nunca a Minka.",
+    },
+  },
+  "perfil-visitas": {
+    left: {
+      label: "Visitas",
+      description:
+        "El residente autoriza el ingreso de invitados y consulta las visitas programadas.",
+    },
+    right: {
+      label: "Control en la garita",
+      description:
+        "La información queda disponible para que la garita valide el acceso sin llamadas previas.",
+    },
+  },
+  "perfil-incidencias": {
+    left: {
+      label: "Incidencias",
+      description:
+        "Permite reportar un problema o daño en una unidad o área común directamente desde la app.",
+    },
+    right: {
+      label: "Seguimiento claro",
+      description:
+        "El residente puede ver el estado de cada reporte enviado a la administración.",
+    },
+  },
+  "perfil-documentos": {
+    left: {
+      label: "Documentos",
+      description:
+        "Reúne reglamentos, comunicados y archivos oficiales que la administración comparte con los residentes.",
+    },
+    right: {
+      label: "Todo a la mano",
+      description:
+        "El residente evita pedir documentos por chat o correo cada vez que los necesita.",
+    },
+  },
+  "perfil-notificaciones": {
+    left: {
+      label: "Notificaciones",
+      description:
+        "Agrupa avisos de pagos, reservas y comunicados importantes ordenados por fecha.",
+    },
+    right: {
+      label: "Nada se pierde",
+      description:
+        "Cada notificación indica su tipo para que el residente priorice lo urgente.",
+    },
+  },
+  "perfil-preferencias": {
+    left: {
+      label: "Preferencias de notificación",
+      description:
+        "El residente decide qué avisos recibir por push o por correo electrónico.",
+    },
+    right: {
+      label: "Menos ruido",
+      description:
+        "Permite ajustar la comunicación a lo que realmente le interesa a cada residente.",
+    },
+  },
+  "perfil-password": {
+    left: {
+      label: "Cambiar contraseña",
+      description:
+        "El residente actualiza su contraseña de acceso de forma segura desde su propio perfil.",
+    },
+    right: {
+      label: "Cuenta protegida",
+      description:
+        "No depende de la administración para gestionar sus propias credenciales.",
+    },
+  },
+  "perfil-ayuda": {
+    left: {
+      label: "Ayuda y soporte",
+      description:
+        "Reúne temas frecuentes y canales de contacto para resolver dudas sobre la app.",
+    },
+    right: {
+      label: "Soporte a un toque",
+      description:
+        "El residente encuentra respuesta sin salir de Minka ni buscar el contacto de la administración.",
+    },
   },
 };
 
@@ -565,8 +774,13 @@ export function LiveDemo() {
   );
   const [residentCommand, setResidentCommand] = useState<{ type: ResidentCommand; token: number } | null>(null);
   const residentCommandCounter = useRef(0);
+  const [residentView, setResidentView] = useState<ResidentDemoView>("inicio");
   const dynamicAdminCopy =
-    role === "resident" ? residentPageCopy : device === "iphone" ? adminPageCopy[adminView] : desktopCopy;
+    role === "resident"
+      ? residentPageCopy[residentView]
+      : device === "iphone"
+        ? adminPageCopy[adminView]
+        : desktopCopy;
 
   useEffect(() => {
     const enforcePhoneOnSmallScreens = () => {
@@ -638,6 +852,10 @@ export function LiveDemo() {
   const handleMobileViewChange = useCallback((view: AdminDemoView) => {
     setAdminView(view);
     setRequestedAdminView(undefined);
+  }, []);
+
+  const handleResidentViewChange = useCallback((view: ResidentDemoView) => {
+    setResidentView(view);
   }, []);
 
   const runResidentCommand = (type: ResidentCommand) => {
@@ -742,7 +960,11 @@ export function LiveDemo() {
               <div className="live-demo-screen">
                 {role === "resident" ? (
                   <>
-                    <ResidentMobileDemo commandType={residentCommand?.type} commandToken={residentCommand?.token} />
+                    <ResidentMobileDemo
+                      commandType={residentCommand?.type}
+                      commandToken={residentCommand?.token}
+                      onViewChange={handleResidentViewChange}
+                    />
                     <div className="live-demo-punch-hole" aria-hidden="true" />
                   </>
                 ) : device === "iphone" ? (
